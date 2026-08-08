@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: computeweaver-postgres-backup
+  labels: {app: computeweaver, component: backup}
+spec:
+  schedule: "*/5 * * * *"
+  timeZone: UTC
+  suspend: true
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 240
+      template:
+        metadata:
+          labels: {app: computeweaver, component: backup}
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 70
+            runAsGroup: 70
+            fsGroup: 70
+            seccompProfile: {type: RuntimeDefault}
+          containers:
+            - name: pg-dump
+              image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+              command: ["/bin/sh", "-ec"]
+              args:
+                - |
+                  umask 077
+                  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+                  temporary="/backups/.computeweaver-${stamp}.dump"
+                  destination="/backups/computeweaver-${stamp}.dump"
+                  pg_dump --format=custom --no-owner --no-acl --file="$temporary" "$COMPUTEWEAVER_BACKUP_DATABASE_URL"
+                  sha256sum "$temporary" > "${temporary}.sha256"
+                  mv "$temporary" "$destination"
+                  mv "${temporary}.sha256" "${destination}.sha256"
+                  printf 'computeweaver_backup_last_success_timestamp_seconds %s\n' "$(date +%s)" > /metrics/.backup.prom
+                  mv /metrics/.backup.prom /metrics/computeweaver-backup.prom
+              env:
+                - name: COMPUTEWEAVER_BACKUP_DATABASE_URL
+                  valueFrom:
+                    secretKeyRef: {name: computeweaver-backup-database, key: url}
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities: {drop: ["ALL"]}
+              resources:
+                requests: {cpu: 250m, memory: 256Mi}
+                limits: {cpu: "2", memory: 1Gi}
+              volumeMounts:
+                - {name: backups, mountPath: /backups}
+                - {name: metrics, mountPath: /metrics}
+                - {name: temporary, mountPath: /tmp}
+          volumes:
+            - name: backups
+              persistentVolumeClaim: {claimName: REPLACE_WITH_ENCRYPTED_BACKUP_PVC}
+            - name: metrics
+              persistentVolumeClaim: {claimName: REPLACE_WITH_NODE_EXPORTER_TEXTFILE_PVC}
+            - name: temporary
+              emptyDir: {sizeLimit: 1Gi}

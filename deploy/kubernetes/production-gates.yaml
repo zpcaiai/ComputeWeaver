@@ -1,0 +1,261 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: computeweaver-production-gates
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: computeweaver-release-evidence
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: REPLACE_WITH_ENCRYPTED_RWX_STORAGE_CLASS
+---
+# These Jobs are deliberately suspended. A release operator must replace the
+# image digest, provision the named ConfigMaps/Secrets/PVC, and unsuspend the
+# specific Job. No production credential or write target is embedded here.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: computeweaver-external-acceptance-replace-release
+  labels: {app: computeweaver-production-gate, gate: external-acceptance}
+spec:
+  suspend: true
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 604800
+  template:
+    metadata:
+      labels: {app: computeweaver-production-gate, gate: external-acceptance}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: computeweaver-production-gates
+      automountServiceAccountToken: false
+      securityContext: &podSecurity
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: gate
+          image: computeweaver@sha256:REPLACE_WITH_RELEASE_IMAGE_DIGEST
+          command: ["python", "-m", "scripts.run_external_acceptance"]
+          args:
+            - /gate-config/production-acceptance.json
+            - --request
+            - /evidence/B20/evidence-request.json
+            - --output
+            - /evidence/B20/external-integrations.json
+          envFrom:
+            - secretRef: {name: computeweaver-production-gate-env}
+          securityContext: &containerSecurity
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources: &gateResources
+            requests: {cpu: 250m, memory: 256Mi}
+            limits: {cpu: "2", memory: 1Gi}
+          volumeMounts: &gateMounts
+            - {name: gate-config, mountPath: /gate-config, readOnly: true}
+            - {name: gate-secrets, mountPath: /var/run/secrets/computeweaver/connectors, readOnly: true}
+            - {name: evidence, mountPath: /evidence}
+            - {name: temporary, mountPath: /tmp}
+      volumes: &gateVolumes
+        - name: gate-config
+          configMap: {name: computeweaver-production-gate-config}
+        - name: gate-secrets
+          secret: {secretName: computeweaver-production-gate-files, defaultMode: 0440}
+        - name: evidence
+          persistentVolumeClaim: {claimName: computeweaver-release-evidence}
+        - name: temporary
+          emptyDir: {sizeLimit: 1Gi}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: computeweaver-production-load-replace-release
+  labels: {app: computeweaver-production-gate, gate: production-load}
+spec:
+  suspend: true
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 604800
+  template:
+    metadata:
+      labels: {app: computeweaver-production-gate, gate: production-load}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: computeweaver-production-gates
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: gate
+          image: computeweaver@sha256:REPLACE_WITH_RELEASE_IMAGE_DIGEST
+          command: ["python", "-m", "scripts.run_production_gates", "load"]
+          args:
+            - $(LOAD_TARGET)
+            - --requests
+            - $(LOAD_REQUESTS)
+            - --concurrency
+            - $(LOAD_CONCURRENCY)
+            - --p95-ms
+            - $(LOAD_P95_MS)
+            - --p99-ms
+            - $(LOAD_P99_MS)
+            - --max-error-rate
+            - $(LOAD_MAX_ERROR_RATE)
+            - --release-id
+            - $(RELEASE_ID)
+            - --source-revision
+            - $(SOURCE_REVISION)
+            - --request
+            - /evidence/B20/evidence-request.json
+            - --token-ref
+            - $(LOAD_TOKEN_REF)
+            - --output
+            - /evidence/B20/production-performance-report.json
+          envFrom:
+            - configMapRef: {name: computeweaver-production-load-config}
+            - secretRef: {name: computeweaver-production-gate-env}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: "1", memory: 512Mi}
+            limits: {cpu: "4", memory: 2Gi}
+          volumeMounts:
+            - {name: gate-config, mountPath: /gate-config, readOnly: true}
+            - {name: gate-secrets, mountPath: /var/run/secrets/computeweaver/connectors, readOnly: true}
+            - {name: evidence, mountPath: /evidence}
+            - {name: temporary, mountPath: /tmp}
+      volumes:
+        - name: gate-config
+          configMap: {name: computeweaver-production-gate-config}
+        - name: gate-secrets
+          secret: {secretName: computeweaver-production-gate-files, defaultMode: 0440}
+        - name: evidence
+          persistentVolumeClaim: {claimName: computeweaver-release-evidence}
+        - name: temporary
+          emptyDir: {sizeLimit: 1Gi}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: computeweaver-restore-rehearsal-replace-release
+  labels: {app: computeweaver-production-gate, gate: restore-rehearsal}
+spec:
+  suspend: true
+  backoffLimit: 0
+  activeDeadlineSeconds: 7200
+  ttlSecondsAfterFinished: 604800
+  template:
+    metadata:
+      labels: {app: computeweaver-production-gate, gate: restore-rehearsal}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: computeweaver-production-gates
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: gate
+          image: computeweaver@sha256:REPLACE_WITH_RELEASE_IMAGE_DIGEST
+          command: ["python", "-m", "scripts.run_restore_rehearsal"]
+          args:
+            - /gate-config/restore-rehearsal.json
+            - --request
+            - /evidence/B20/evidence-request.json
+            - --output
+            - /evidence/B20/restore-rehearsal.json
+          envFrom:
+            - secretRef: {name: computeweaver-production-gate-env}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 250m, memory: 256Mi}
+            limits: {cpu: "2", memory: 1Gi}
+          volumeMounts:
+            - {name: gate-config, mountPath: /gate-config, readOnly: true}
+            - {name: gate-secrets, mountPath: /var/run/secrets/computeweaver/connectors, readOnly: true}
+            - {name: evidence, mountPath: /evidence}
+            - {name: temporary, mountPath: /tmp}
+      volumes:
+        - name: gate-config
+          configMap: {name: computeweaver-production-gate-config}
+        - name: gate-secrets
+          secret: {secretName: computeweaver-production-gate-files, defaultMode: 0440}
+        - name: evidence
+          persistentVolumeClaim: {claimName: computeweaver-release-evidence}
+        - name: temporary
+          emptyDir: {sizeLimit: 1Gi}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: computeweaver-attestation-verification-replace-release
+  labels: {app: computeweaver-production-gate, gate: signed-attestations}
+spec:
+  suspend: true
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 604800
+  template:
+    metadata:
+      labels: {app: computeweaver-production-gate, gate: signed-attestations}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: computeweaver-production-gates
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: gate
+          image: computeweaver@sha256:REPLACE_WITH_RELEASE_IMAGE_DIGEST
+          command: ["python", "-m", "scripts.run_production_gates", "attestations"]
+          args:
+            - /gate-config/production-attestations.json
+            - --request
+            - /evidence/B20/evidence-request.json
+            - --policy
+            - /gate-config/production-attestation-trust-policy.json
+            - --output
+            - /evidence/B20/signed-attestations.json
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 250m, memory: 256Mi}
+            limits: {cpu: "2", memory: 1Gi}
+          volumeMounts:
+            - {name: gate-config, mountPath: /gate-config, readOnly: true}
+            - {name: gate-secrets, mountPath: /var/run/secrets/computeweaver/connectors, readOnly: true}
+            - {name: evidence, mountPath: /evidence}
+            - {name: temporary, mountPath: /tmp}
+      volumes:
+        - name: gate-config
+          configMap: {name: computeweaver-production-gate-config}
+        - name: gate-secrets
+          secret: {secretName: computeweaver-production-gate-files, defaultMode: 0440}
+        - name: evidence
+          persistentVolumeClaim: {claimName: computeweaver-release-evidence}
+        - name: temporary
+          emptyDir: {sizeLimit: 1Gi}

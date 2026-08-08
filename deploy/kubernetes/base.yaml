@@ -1,0 +1,358 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: computeweaver-config
+data:
+  COMPUTEWEAVER_ENV: production
+  COMPUTEWEAVER_AUTH_MODE: oidc
+  COMPUTEWEAVER_OIDC_ISSUER: REPLACE_IN_OVERLAY
+  COMPUTEWEAVER_OIDC_AUDIENCE: computeweaver
+  COMPUTEWEAVER_OIDC_JWKS_URL: REPLACE_IN_OVERLAY
+  COMPUTEWEAVER_WEB_OIDC_CLIENT_ID: REPLACE_IN_OVERLAY
+  COMPUTEWEAVER_WEB_OIDC_SCOPES: openid profile email
+  COMPUTEWEAVER_OBJECT_STORE: s3://computeweaver
+  COMPUTEWEAVER_OBJECT_STORE_ENDPOINT: REPLACE_IN_OVERLAY
+  COMPUTEWEAVER_EXECUTION_MODE: read_only
+  COMPUTEWEAVER_EXTERNAL_WRITE_ENABLED: "false"
+  OTEL_SERVICE_NAME: computeweaver-api
+  OTEL_EXPORTER_OTLP_ENDPOINT: REPLACE_WITH_HTTPS_OTLP_ENDPOINT
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: computeweaver-api
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: computeweaver-worker
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: computeweaver-migrator
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: computeweaver-inventory-reader
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: computeweaver-inventory-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: computeweaver-inventory-reader
+subjects:
+  - kind: ServiceAccount
+    name: computeweaver-api
+    namespace: default
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: computeweaver-migrate-REPLACE_RELEASE
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata: {labels: {app: computeweaver-migrator}}
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: computeweaver-migrator
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: migrate
+          image: computeweaver@sha256:REPLACE_AT_RELEASE
+          command: ["python", "-m", "packages.persistence.cli", "migrate"]
+          env:
+            - name: COMPUTEWEAVER_DATABASE_URL
+              valueFrom: {secretKeyRef: {name: computeweaver-db-migrator, key: url}}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: computeweaver-api
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  selector: {matchLabels: {app: computeweaver-api}}
+  template:
+    metadata:
+      labels: {app: computeweaver-api}
+    spec:
+      serviceAccountName: computeweaver-api
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector: {matchLabels: {app: computeweaver-api}}
+      containers:
+        - name: api
+          image: computeweaver@sha256:REPLACE_AT_RELEASE
+          args:
+            - python
+            - -m
+            - uvicorn
+            - apps.api.main:app
+            - --host
+            - 0.0.0.0
+            - --proxy-headers
+            - --forwarded-allow-ips
+            - REPLACE_TRUSTED_PROXY_CIDRS
+          envFrom:
+            - configMapRef: {name: computeweaver-config}
+          env:
+            - name: COMPUTEWEAVER_DATABASE_URL
+              valueFrom: {secretKeyRef: {name: computeweaver-db-app, key: url}}
+            - name: COMPUTEWEAVER_OBJECT_STORE_ACCESS_KEY
+              valueFrom: {secretKeyRef: {name: computeweaver-object-store, key: access-key}}
+            - name: COMPUTEWEAVER_OBJECT_STORE_SECRET_KEY
+              valueFrom: {secretKeyRef: {name: computeweaver-object-store, key: secret-key}}
+            - name: COMPUTEWEAVER_TRUSTED_PROXY_SECRET
+              valueFrom: {secretKeyRef: {name: computeweaver-proxy, key: shared-secret}}
+          ports:
+            - {name: http, containerPort: 8000}
+          startupProbe:
+            httpGet: {path: /health/live, port: http}
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet: {path: /health/ready, port: http}
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: {path: /health/live, port: http}
+            periodSeconds: 10
+            failureThreshold: 3
+          lifecycle:
+            preStop: {exec: {command: ["/bin/sh", "-c", "sleep 5"]}}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 250m, memory: 256Mi}
+            limits: {cpu: "2", memory: 2Gi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: computeweaver-worker
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: computeweaver-worker}}
+  template:
+    metadata: {labels: {app: computeweaver-worker}}
+    spec:
+      serviceAccountName: computeweaver-worker
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: worker
+          image: computeweaver@sha256:REPLACE_AT_RELEASE
+          command: ["python", "-m", "apps.worker.main"]
+          envFrom:
+            - configMapRef: {name: computeweaver-config}
+          env:
+            - name: COMPUTEWEAVER_DATABASE_URL
+              valueFrom: {secretKeyRef: {name: computeweaver-db-worker, key: url}}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 250m, memory: 256Mi}
+            limits: {cpu: "1", memory: 1Gi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: computeweaver-api
+spec:
+  selector: {app: computeweaver-api}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: computeweaver-web
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  selector: {matchLabels: {app: computeweaver-web}}
+  template:
+    metadata: {labels: {app: computeweaver-web}}
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 20
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: web
+          image: computeweaver@sha256:REPLACE_AT_RELEASE
+          command: ["python", "-m", "apps.web.main"]
+          envFrom:
+            - configMapRef: {name: computeweaver-config}
+          env:
+            - name: COMPUTEWEAVER_WEB_API_UPSTREAM
+              value: http://computeweaver-api
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe:
+            httpGet: {path: /web-health/live, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /web-health/live, port: http}
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: computeweaver-web
+spec:
+  selector: {app: computeweaver-web}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: computeweaver-api
+spec:
+  minAvailable: 2
+  selector: {matchLabels: {app: computeweaver-api}}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: computeweaver-web
+spec:
+  minAvailable: 1
+  selector: {matchLabels: {app: computeweaver-web}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: computeweaver-api
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: computeweaver-api}
+  minReplicas: 3
+  maxReplicas: 12
+  behavior:
+    scaleDown: {stabilizationWindowSeconds: 300}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: 70}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: computeweaver-default-deny
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: computeweaver-api-allow
+spec:
+  podSelector: {matchLabels: {app: computeweaver-api}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: ingress-nginx}}
+        - podSelector: {matchLabels: {app: computeweaver-web}}
+      ports: [{protocol: TCP, port: 8000}]
+  egress:
+    - to:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+    - ports:
+        - {protocol: TCP, port: 443}
+        - {protocol: TCP, port: 4318}
+        - {protocol: TCP, port: 5432}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: computeweaver-web-allow
+spec:
+  podSelector: {matchLabels: {app: computeweaver-web}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: ingress-nginx}}
+      ports: [{protocol: TCP, port: 8080}]
+  egress:
+    - to:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+    - to:
+        - podSelector: {matchLabels: {app: computeweaver-api}}
+      ports: [{protocol: TCP, port: 8000}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: computeweaver-worker-migrator-allow
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: [computeweaver-worker, computeweaver-migrator]
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+    - ports:
+        - {protocol: TCP, port: 443}
+        - {protocol: TCP, port: 4318}
+        - {protocol: TCP, port: 5432}

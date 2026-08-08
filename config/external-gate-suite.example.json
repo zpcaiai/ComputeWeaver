@@ -1,0 +1,19 @@
+{
+  "evidence_request": "../evidence/B20/evidence-request.json",
+  "preflight_configuration": "production-preflight.json",
+  "acceptance_manifest": "production-acceptance.json",
+  "restore_configuration": "restore-rehearsal.json",
+  "attestation_bundle": "production-attestations.json",
+  "attestation_policy": "production-attestation-trust-policy.json",
+  "command_timeout_seconds": 3600,
+  "production_load": {
+    "target": "https://REPLACE_WITH_PRODUCTION_CONTROL_PLANE_HOST/v1/compute/nodes",
+    "requests": 1000,
+    "concurrency": 25,
+    "p95_ms": 300,
+    "p99_ms": 1000,
+    "max_error_rate": 0.001,
+    "token_ref": "secret://PRODUCTION_LOAD_TOKEN",
+    "ca_bundle_ref": "file://production/ca.pem"
+  }
+}

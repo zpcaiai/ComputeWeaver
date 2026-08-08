@@ -1,0 +1,19 @@
+{
+  "name": "computeweaver-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vue-tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "vue": "3.5.41"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.8",
+    "typescript": "5.9.2",
+    "vite": "7.3.6",
+    "vue-tsc": "3.3.9"
+  }
+}

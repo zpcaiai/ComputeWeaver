@@ -1,0 +1,24 @@
+{
+  "penetration_test": {
+    "trusted_issuer": "REPLACE_WITH_INDEPENDENT_ASSESSMENT_AUTHORITY",
+    "public_key_file": "/var/run/secrets/computeweaver/connectors/trust/pentest-assessor.pem",
+    "approved_subjects": ["REPLACE_WITH_INDEPENDENT_ASSESSOR_ID"]
+  },
+  "human_acceptance": {
+    "product_owner": {
+      "trusted_issuer": "REPLACE_WITH_ACCEPTANCE_AUTHORITY",
+      "public_key_file": "/var/run/secrets/computeweaver/connectors/trust/product-owner.pem",
+      "approved_subjects": ["REPLACE_WITH_PRODUCT_OWNER_ID"]
+    },
+    "security_owner": {
+      "trusted_issuer": "REPLACE_WITH_ACCEPTANCE_AUTHORITY",
+      "public_key_file": "/var/run/secrets/computeweaver/connectors/trust/security-owner.pem",
+      "approved_subjects": ["REPLACE_WITH_SECURITY_OWNER_ID"]
+    },
+    "operations_owner": {
+      "trusted_issuer": "REPLACE_WITH_ACCEPTANCE_AUTHORITY",
+      "public_key_file": "/var/run/secrets/computeweaver/connectors/trust/operations-owner.pem",
+      "approved_subjects": ["REPLACE_WITH_OPERATIONS_OWNER_ID"]
+    }
+  }
+}

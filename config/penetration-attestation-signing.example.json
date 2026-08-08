@@ -1,0 +1,15 @@
+{
+  "kind": "penetration_test",
+  "issuer": "REPLACE_WITH_INDEPENDENT_ASSESSMENT_AUTHORITY",
+  "subject": "REPLACE_WITH_INDEPENDENT_ASSESSOR_ID",
+  "private_key_file": "/var/run/computeweaver-signing/assessor-private-key.pem",
+  "request_file": "evidence/B20/evidence-request.json",
+  "artifact_file": "evidence/B20/independent-penetration-report.json",
+  "valid_for_hours": 168,
+  "key_id": "REPLACE_WITH_KEY_ID",
+  "claims": {
+    "open_findings": {"critical": 0, "high": 0, "medium": "REPLACE_WITH_COUNT"},
+    "scope": "REPLACE_WITH_INDEPENDENT_TEST_SCOPE",
+    "report_reference": "REPLACE_WITH_REPORT_REFERENCE"
+  }
+}

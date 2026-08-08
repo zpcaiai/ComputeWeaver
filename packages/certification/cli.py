@@ -1,0 +1,133 @@
+from __future__ import annotations
+
+import argparse
+import json
+from dataclasses import asdict
+from datetime import UTC, datetime
+from pathlib import Path
+
+from .lifecycle import CertificationRepository
+from .service import (
+    CertificationResult,
+    certify_release,
+    collect_certificate_metadata,
+    collect_gate_evidence_hashes,
+    evaluate_production_evidence,
+)
+from .signing import attach_release_signature, issue_release_token
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="certify")
+    parser.add_argument("command", choices=("preflight", "run", "report", "release", "revoke"))
+    parser.add_argument("--evidence", type=Path, default=Path("evidence"))
+    parser.add_argument("--commit", default="UNVERSIONED")
+    parser.add_argument("--release-id", default="local-candidate")
+    parser.add_argument("--actor", default="local-operator")
+    parser.add_argument("--signing-key", type=Path)
+    parser.add_argument("--verification-key", type=Path)
+    parser.add_argument("--signing-algorithm", default="ES256")
+    parser.add_argument("--key-id")
+    parser.add_argument("--reason")
+    return parser
+
+
+def _evaluate(
+    evidence_root: Path,
+    *,
+    release_id: str,
+    commit: str,
+    generated_at: datetime,
+) -> CertificationResult:
+    gates = evaluate_production_evidence(
+        evidence_root,
+        release_id=release_id,
+        source_revision=commit,
+    )
+    hashes = collect_gate_evidence_hashes(evidence_root, gates)
+    test_summary, scenario_metrics, approvals, risks = collect_certificate_metadata(evidence_root)
+    if not next((gate.passed for gate in gates if gate.name == "acceptance"), False):
+        approvals = ()
+    return certify_release(
+        release_id=release_id,
+        commit=commit,
+        generated_at=generated_at,
+        gate_results=gates,
+        accepted_risks=risks,
+        evidence_hashes=hashes,
+        artifacts=hashes,
+        test_summary=test_summary,
+        scenario_metrics=scenario_metrics,
+        approvals=approvals,
+    )
+
+
+def _print(document: object) -> None:
+    print(json.dumps(document, default=str, indent=2, sort_keys=True))
+
+
+def main() -> None:
+    arguments = _parser().parse_args()
+    repository = CertificationRepository(arguments.evidence)
+    if arguments.command == "report":
+        _print(repository.view(arguments.release_id))
+        return
+    if arguments.command == "revoke":
+        if not arguments.reason:
+            raise SystemExit("certify revoke requires --reason")
+        _print(
+            repository.revoke(
+                arguments.release_id,
+                actor_id=arguments.actor,
+                reason=arguments.reason,
+            )
+        )
+        return
+
+    if arguments.command == "release":
+        if arguments.signing_key is None:
+            raise SystemExit("certify release requires --signing-key")
+        if arguments.verification_key is None:
+            raise SystemExit("certify release requires --verification-key")
+        run = repository.load_run(arguments.release_id)
+        if run.commit != arguments.commit:
+            raise SystemExit("certification run commit does not match --commit")
+        current = _evaluate(
+            arguments.evidence,
+            release_id=arguments.release_id,
+            commit=arguments.commit,
+            generated_at=run.generated_at,
+        )
+        if current.certificate_hash != run.certificate_hash:
+            raise SystemExit("certification evidence changed after certify run")
+        if current.status != "CERTIFIED":
+            _print(asdict(current))
+            raise SystemExit(1)
+        token = issue_release_token(
+            current,
+            private_key_file=arguments.signing_key,
+            algorithm=arguments.signing_algorithm,
+            key_id=arguments.key_id,
+        )
+        signed = attach_release_signature(current, token)
+        repository.publish(
+            signed,
+            actor_id=arguments.actor,
+            public_key_file=arguments.verification_key,
+        )
+        _print(asdict(signed))
+        return
+
+    result = _evaluate(
+        arguments.evidence,
+        release_id=arguments.release_id,
+        commit=arguments.commit,
+        generated_at=datetime.now(UTC),
+    )
+    if arguments.command == "run":
+        repository.save_run(result, actor_id=arguments.actor)
+    _print(asdict(result))
+
+
+if __name__ == "__main__":
+    main()

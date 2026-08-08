@@ -1,0 +1,147 @@
+[
+  {
+    "path": "CODEX_EXECUTION_PROTOCOL.md",
+    "sha256": "5a4b75084922e8d135ea22c0539e6ec8048b53344688926e8eb4437665af7597",
+    "bytes": 1535
+  },
+  {
+    "path": "EVIDENCE_STANDARD.md",
+    "sha256": "9a6f0f73f1cc2093750763842207114a0a2d2ed74ffa5ef95807be0be30ddf9c",
+    "bytes": 1930
+  },
+  {
+    "path": "IMPLEMENTATION_CHECKLIST.md",
+    "sha256": "8858403a0cef80abde1edd430999c3f9bf880acf5cebea50a2db142f7e876ce0",
+    "bytes": 10793
+  },
+  {
+    "path": "IMPLEMENTATION_ORDER.md",
+    "sha256": "a630dec9cf5e10fcdcd8dcd4d6ce371cd9eff0c12bcd02485e1cf4e67462ea91",
+    "bytes": 1512
+  },
+  {
+    "path": "INTERFACE_CATALOG.md",
+    "sha256": "afc34fdc215c79eb99a3292f351efb3034e6914f1176eabf11e53aebe3a78b3c",
+    "bytes": 1517
+  },
+  {
+    "path": "PACKAGE_MANIFEST.json",
+    "sha256": "b3efe6e333e3b319e2c49988bb315ed90fbc169eaaadedf4de3b8c94a2dfa306",
+    "bytes": 3842
+  },
+  {
+    "path": "README.md",
+    "sha256": "3460250b8607d4a7b336aafd04d3333fca72a4c9cfa54640381804334f0f1900",
+    "bytes": 3052
+  },
+  {
+    "path": "VALIDATION_REPORT.md",
+    "sha256": "96aa4c4eab8ca33aa0d34ffc9f751b5f567246c2586304e8dacd8ed65f509462",
+    "bytes": 375
+  },
+  {
+    "path": "batches/B01-platform-foundation/SKILL.md",
+    "sha256": "68174ab2e7c83dee8d7e2af9fa1c15a7fdf9e6b81145cbea6bc3785c9b8d24dc",
+    "bytes": 6722
+  },
+  {
+    "path": "batches/B02-unified-domain-contracts/SKILL.md",
+    "sha256": "135e741bb25f272bbdb7a26779ae39b3088e8c0d7c226b4e43578f1387f1b710",
+    "bytes": 6471
+  },
+  {
+    "path": "batches/B03-asset-topology/SKILL.md",
+    "sha256": "32009e7e9f1636a4d047c40d99dae4e5e772f15488c7e30ec2e77724d9244e6d",
+    "bytes": 6275
+  },
+  {
+    "path": "batches/B04-compute-resource-plane/SKILL.md",
+    "sha256": "0351d62e8fa73da5979ed6ea0a9c0ad22d573bd338ad5c96faa97c704f713559",
+    "bytes": 6389
+  },
+  {
+    "path": "batches/B05-workload-sla-admission/SKILL.md",
+    "sha256": "2216b4322dd3e19761f15ae30fbffd3a3358c85f14510772e0f6ded3dbac9834",
+    "bytes": 6418
+  },
+  {
+    "path": "batches/B06-tariff-carbon-rules/SKILL.md",
+    "sha256": "8784ca372149f06d360ae33a30af9e29ab3ede9e7d5845a36aeacf8c10bdc566",
+    "bytes": 6225
+  },
+  {
+    "path": "batches/B07-energy-assets-power-balance/SKILL.md",
+    "sha256": "4822e7839b38fb7cdc342e36e0aa379c0cfd9c0c37c434b18ded18f4cb2cb860",
+    "bytes": 6172
+  },
+  {
+    "path": "batches/B08-data-ingestion-quality/SKILL.md",
+    "sha256": "d804fad13a449710bb3b1e9136156a26ce2b290d4cb7c757fd602cf7c436063d",
+    "bytes": 6272
+  },
+  {
+    "path": "batches/B09-shadow-simulator/SKILL.md",
+    "sha256": "be435ab0e83a2a53490d9c1778067f5cfb0e9e6fb5ea03d8a3864270e79cbf0e",
+    "bytes": 6221
+  },
+  {
+    "path": "batches/B10-scenario-replay-evaluator/SKILL.md",
+    "sha256": "98cd578e8faa85d48ccae9f15d7fbaf596ab7d5d90133517e15f0470ac569a4c",
+    "bytes": 6226
+  },
+  {
+    "path": "batches/B11-forecasting-center/SKILL.md",
+    "sha256": "e2e82e84bd8160a7220bc28beefd17fcf6ed6fa1c202d01880bad47aba73440b",
+    "bytes": 6263
+  },
+  {
+    "path": "batches/B12-baseline-schedulers/SKILL.md",
+    "sha256": "0dd0d54b54ca8e0fea28a9d4b7f3330d6df681d614cc9f30a090caf06ea01aa6",
+    "bytes": 6058
+  },
+  {
+    "path": "batches/B13-milp-co-optimizer/SKILL.md",
+    "sha256": "3a8430a08aa1a36c56f0a45859796b0ea29f2d2cba53a01564d0664e6d00f15e",
+    "bytes": 6480
+  },
+  {
+    "path": "batches/B14-rolling-mpc/SKILL.md",
+    "sha256": "7866f762222ba5b8d2afb48b79ae11c6e9885ba5e1b2bf7c8f8e87f51dad1bce",
+    "bytes": 6200
+  },
+  {
+    "path": "batches/B15-policy-plan-governance/SKILL.md",
+    "sha256": "9f171dfadcc28553b9904c2e076a3c1aa3beaa91d31555eca60953fc24b62a00",
+    "bytes": 6251
+  },
+  {
+    "path": "batches/B16-approval-guarded-execution/SKILL.md",
+    "sha256": "026afc2cca804d3fbf34f0963550dc04f88b700f6cd5a3d96374cd427152376e",
+    "bytes": 6456
+  },
+  {
+    "path": "batches/B17-explainability-whatif-reporting/SKILL.md",
+    "sha256": "910094532cdd5c2b088d7d807ab3edbd0d3fbf703b43f84468ac0abf47e2abb0",
+    "bytes": 6383
+  },
+  {
+    "path": "batches/B18-enterprise-platform/SKILL.md",
+    "sha256": "9ab5bb25b52bfd0515f9948fad6ecab980ef08287ab3b28141dde7173e970c81",
+    "bytes": 6371
+  },
+  {
+    "path": "batches/B19-multisite-resilience/SKILL.md",
+    "sha256": "d97920784529bfc2437deda05bfc903ec0ba79b8328eea0783c4ac58a2ea6b78",
+    "bytes": 6464
+  },
+  {
+    "path": "batches/B20-production-release-gate/SKILL.md",
+    "sha256": "ff40f2f7e708ce88b0514ca41a2584c3800ba4c56bd7aab02af1946afeba8845",
+    "bytes": 6795
+  },
+  {
+    "path": "validate_package.py",
+    "sha256": "0fb6a039e7198ef15418e4f3043ab83fabcd0ba3b3fb69166eb5c273fc7d2379",
+    "bytes": 2890
+  }
+]

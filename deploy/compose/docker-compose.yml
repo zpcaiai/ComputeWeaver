@@ -1,0 +1,126 @@
+services:
+  postgres:
+    image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+    environment:
+      POSTGRES_DB: computeweaver
+      POSTGRES_USER: computeweaver_admin
+      POSTGRES_PASSWORD: local-admin-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U computeweaver_admin -d computeweaver"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/001-roles.sql:ro
+  object-store:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z@sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: local-access
+      MINIO_ROOT_PASSWORD: local-development-secret
+    volumes: ["object-data:/data"]
+  api:
+    image: computeweaver:local
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile
+    command: ["python", "-m", "uvicorn", "apps.api.main:app", "--host", "0.0.0.0"]
+    user: "65532:65532"
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp"]
+    ports: ["8000:8000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      object-store-init: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
+      retries: 12
+    environment:
+      COMPUTEWEAVER_ENV: simulator
+      COMPUTEWEAVER_DATABASE_URL: postgresql://computeweaver_app:local-app-only@postgres:5432/computeweaver
+      COMPUTEWEAVER_AUTH_MODE: trusted_headers
+      COMPUTEWEAVER_OBJECT_STORE: s3://computeweaver
+      COMPUTEWEAVER_OBJECT_STORE_ENDPOINT: http://object-store:9000
+      COMPUTEWEAVER_OBJECT_STORE_ACCESS_KEY: local-access
+      COMPUTEWEAVER_OBJECT_STORE_SECRET_KEY: local-development-secret
+  web:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile
+    command: ["python", "-m", "apps.web.main"]
+    user: "65532:65532"
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp"]
+    ports: ["8080:8080"]
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/web-health/live', timeout=3)"]
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
+      retries: 12
+    environment:
+      COMPUTEWEAVER_ENV: simulator
+      COMPUTEWEAVER_WEB_API_UPSTREAM: http://api:8000
+      COMPUTEWEAVER_WEB_DEV_TENANT: tenant-local
+      COMPUTEWEAVER_WEB_DEV_ACTOR: operator-local
+      COMPUTEWEAVER_WEB_DEV_ROLES: admin,operator
+  object-store-init:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile
+    command: ["python", "-m", "packages.objectstore.cli"]
+    environment:
+      COMPUTEWEAVER_OBJECT_STORE: s3://computeweaver
+      COMPUTEWEAVER_OBJECT_STORE_ENDPOINT: http://object-store:9000
+      COMPUTEWEAVER_OBJECT_STORE_ACCESS_KEY: local-access
+      COMPUTEWEAVER_OBJECT_STORE_SECRET_KEY: local-development-secret
+    depends_on:
+      object-store: {condition: service_started}
+  migrate:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile
+    command: ["python", "-m", "packages.persistence.cli", "migrate"]
+    environment:
+      COMPUTEWEAVER_DATABASE_URL: postgresql://computeweaver_admin:local-admin-only@postgres:5432/computeweaver
+    depends_on:
+      postgres: {condition: service_healthy}
+  worker:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile
+    command: ["python", "-m", "apps.worker.main"]
+    user: "65532:65532"
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp"]
+    environment:
+      COMPUTEWEAVER_DATABASE_URL: postgresql://computeweaver_worker:local-worker-only@postgres:5432/computeweaver
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  simulator:
+    profiles: ["simulation"]
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile
+    command: ["python", "-m", "apps.simulator.main", "--hours", "24"]
+    user: "65532:65532"
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp"]
+
+volumes:
+  postgres-data:
+  object-data:

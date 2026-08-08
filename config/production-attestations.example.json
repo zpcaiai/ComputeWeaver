@@ -1,0 +1,29 @@
+{
+  "release_id": "REPLACE_WITH_RELEASE_ID",
+  "source_revision": "REPLACE_WITH_IMMUTABLE_RELEASE_REVISION",
+  "release_requester": "REPLACE_WITH_REQUESTER_ID",
+  "request_sha256": "REPLACE_WITH_VERIFIED_EVIDENCE_REQUEST_SHA256",
+  "penetration_test": {
+    "token_file": "/evidence/B20/attestations/penetration-test.jwt",
+    "artifact_file": "/evidence/B20/independent-penetration-report.json"
+  },
+  "human_acceptance": {
+    "signatures": [
+      {
+        "role": "product_owner",
+        "token_file": "/evidence/B20/attestations/product-owner.jwt",
+        "artifact_file": "/evidence/B20/acceptance/product-owner.json"
+      },
+      {
+        "role": "security_owner",
+        "token_file": "/evidence/B20/attestations/security-owner.jwt",
+        "artifact_file": "/evidence/B20/acceptance/security-owner.json"
+      },
+      {
+        "role": "operations_owner",
+        "token_file": "/evidence/B20/attestations/operations-owner.jwt",
+        "artifact_file": "/evidence/B20/acceptance/operations-owner.json"
+      }
+    ]
+  }
+}

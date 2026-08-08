@@ -1,0 +1,15 @@
+.DS_Store
+.git
+.github
+.hypothesis
+.mypy_cache
+.pytest_cache
+.ruff_cache
+.venv
+apps/web/dist
+apps/web/node_modules
+evidence
+skills
+**/__pycache__
+**/*.pyc
+**/*.pyo

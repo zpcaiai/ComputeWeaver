@@ -1,0 +1,31 @@
+{
+  "minimum_free_gib": 16,
+  "check_docker": true,
+  "required_tools": ["git", "docker", "pg_dump", "pg_restore"],
+  "images": [
+    "node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e",
+    "python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f",
+    "postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193",
+    "minio/minio:RELEASE.2025-07-23T15-54-02Z@sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0"
+  ],
+  "required_configs": [
+    "config/production-acceptance.json",
+    "config/restore-rehearsal.json",
+    "config/production-attestation-trust-policy.json"
+  ],
+  "external_urls": [
+    "https://REPLACE_WITH_IDP_HOST/.well-known/openid-configuration",
+    "https://REPLACE_WITH_KUBERNETES_HOST",
+    "https://REPLACE_WITH_SLURM_HOST",
+    "https://REPLACE_WITH_METER_HOST",
+    "https://REPLACE_WITH_EMS_HOST",
+    "https://REPLACE_WITH_PRODUCTION_CONTROL_PLANE_HOST/health"
+  ],
+  "credential_refs": [
+    "secret://OIDC_ACCEPTANCE_TOKEN",
+    "file://kubernetes/token",
+    "secret://SLURM_ACCEPTANCE_JWT",
+    "secret://METER_ACCEPTANCE_TOKEN",
+    "secret://EMS_ACCEPTANCE_TOKEN"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "minimum_free_gib": 8,
+  "expansion_factor": 2,
+  "images": [
+    {
+      "reference": "python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603d7ffefc29cb07c88f1f8cb3d19f",
+      "archive": "python-3.12.11-slim.tar",
+      "archive_sha256": "REPLACE_WITH_DOCKER_SAVE_ARCHIVE_SHA256",
+      "image_id": "sha256:REPLACE_WITH_DOCKER_IMAGE_ID"
+    }
+  ]
+}

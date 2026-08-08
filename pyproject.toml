@@ -1,0 +1,87 @@
+[build-system]
+requires = ["hatchling>=1.27,<2", "editables>=0.5,<1"]
+build-backend = "hatchling.build"
+
+[project]
+name = "computeweaver"
+version = "0.1.0"
+description = "AI compute, energy and infrastructure control plane"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+dependencies = [
+  "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
+  "minio>=7.2,<8",
+  "opentelemetry-exporter-otlp-proto-http>=1.44,<2",
+  "opentelemetry-instrumentation-fastapi>=0.65b0,<1",
+  "opentelemetry-sdk>=1.44,<2",
+  "pydantic>=2.11,<3",
+  "psycopg[binary,pool]>=3.3,<4",
+  "PyJWT[crypto]>=2.13,<3",
+  "PyYAML>=6.0,<7",
+  "uvicorn>=0.35,<1",
+]
+
+[project.optional-dependencies]
+solver = ["highspy>=1.11,<2"]
+test = [
+  "hypothesis>=6.136,<7",
+  "httpx2>=2.9.1,<3",
+  "mypy>=1.17,<2",
+  "pytest>=9.0.3,<10",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<1",
+  "types-PyYAML>=6.0.12,<7",
+]
+
+[project.scripts]
+computeweaver = "apps.api.cli:main"
+computeweaver-web = "apps.web.main:main"
+schema = "packages.contracts.schema_cli:main"
+scenario = "packages.scenarios.cli:main"
+replay = "packages.replay.cli:main"
+evaluate = "packages.evaluator.cli:main"
+certify = "packages.certification.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["apps", "packages", "config", "scripts"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+markers = [
+  "integration: integration tests",
+  "security: security and authorization tests",
+  "performance: bounded performance tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["apps", "packages"]
+
+[tool.coverage.report]
+fail_under = 75
+show_missing = true
+
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+exclude = ["skills/", "apps/web/"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+exclude = [".venv", "skills"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S"]
+ignore = ["S101", "B008", "UP046", "UP047"]
+
+[tool.ruff.lint.per-file-ignores]
+"packages/simulation/engine.py" = ["S311"]
+"scripts/generate_evidence.py" = ["S108", "S314", "S603", "S607"]
+"scripts/verify_ci_negative_gate.py" = ["S603"]

@@ -1,0 +1,27 @@
+{
+  "release_id": "REPLACE_WITH_RELEASE_ID",
+  "source_revision": "REPLACE_WITH_RELEASE_REVISION",
+  "postgres": {
+    "source_url": "postgresql://readonly@db.example.com:5432/computeweaver?sslmode=verify-full",
+    "restore_url": "postgresql://restore@recovery.example.com:5432/computeweaver_restore_RELEASE_ID?sslmode=verify-full"
+  },
+  "object_store": {
+    "source": {
+      "bucket": "s3://computeweaver-production",
+      "endpoint": "https://objects.example.com",
+      "access_key_ref": "secret://OBJECT_SOURCE_ACCESS_KEY",
+      "secret_key_ref": "secret://OBJECT_SOURCE_SECRET_KEY",
+      "ca_bundle_ref": "file://objects/ca.pem"
+    },
+    "destination": {
+      "bucket": "s3://computeweaver-restore-RELEASE_ID",
+      "endpoint": "https://objects-recovery.example.com",
+      "access_key_ref": "secret://OBJECT_RESTORE_ACCESS_KEY",
+      "secret_key_ref": "secret://OBJECT_RESTORE_SECRET_KEY",
+      "ca_bundle_ref": "file://objects-recovery/ca.pem"
+    },
+    "source_prefix": "tenants/REPLACE_WITH_TENANT/artifacts",
+    "destination_prefix": "rehearsals/RELEASE_ID",
+    "max_objects": 10000
+  }
+}

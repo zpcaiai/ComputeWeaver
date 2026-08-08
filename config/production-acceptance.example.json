@@ -1,0 +1,41 @@
+{
+  "release_id": "REPLACE_WITH_RELEASE_ID",
+  "source_revision": "REPLACE_WITH_RELEASE_REVISION",
+  "tenant_id": "REPLACE_WITH_TENANT_ID",
+  "oidc": {
+    "issuer": "https://id.example.com",
+    "audience": "computeweaver",
+    "jwks_url": "https://id.example.com/.well-known/jwks.json",
+    "token_ref": "secret://OIDC_ACCEPTANCE_TOKEN",
+    "required_roles": ["operator"]
+  },
+  "kubernetes": {
+    "type": "kubernetes",
+    "endpoint": "https://kubernetes.example.com",
+    "site_id": "REPLACE_WITH_SITE_ID",
+    "credential_ref": "file://kubernetes/token",
+    "ca_bundle_ref": "file://kubernetes/ca.pem"
+  },
+  "slurm": {
+    "type": "slurm",
+    "endpoint": "https://slurm.example.com",
+    "site_id": "REPLACE_WITH_SITE_ID",
+    "user_name": "computeweaver-readonly",
+    "credential_ref": "secret://SLURM_ACCEPTANCE_JWT",
+    "ca_bundle_ref": "file://slurm/ca.pem"
+  },
+  "meter": {
+    "type": "https_meter",
+    "endpoint": "https://meter.example.com",
+    "credential_ref": "secret://METER_ACCEPTANCE_TOKEN",
+    "ca_bundle_ref": "file://meter/ca.pem"
+  },
+  "ems": {
+    "endpoint": "https://ems-gateway.example.com",
+    "target": "site-provider-gateway",
+    "credential_ref": "secret://EMS_ACCEPTANCE_TOKEN",
+    "ca_bundle_ref": "file://ems/ca.pem",
+    "probe_action": "set_power_limit",
+    "probe_parameters": {"power_kw": 0, "validation_only": true}
+  }
+}

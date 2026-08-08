@@ -1,0 +1,129 @@
+{
+  "package": "ai-compute-energy-control-plane-skills",
+  "version": "1.0.0",
+  "generated_at": "2026-08-05T10:28:04.604784+00:00",
+  "batch_count": 20,
+  "batches": [
+    {
+      "id": "B01",
+      "slug": "platform-foundation",
+      "title": "Platform Foundation, Monorepo and Reproducible Build",
+      "depends_on": "None"
+    },
+    {
+      "id": "B02",
+      "slug": "unified-domain-contracts",
+      "title": "Unified Domain Model, Units, Schemas and Event Contracts",
+      "depends_on": "B01"
+    },
+    {
+      "id": "B03",
+      "slug": "asset-topology",
+      "title": "Site, Data-Center and Infrastructure Topology Registry",
+      "depends_on": "B02"
+    },
+    {
+      "id": "B04",
+      "slug": "compute-resource-plane",
+      "title": "GPU Compute Resource Plane and Scheduler Adapters",
+      "depends_on": "B03"
+    },
+    {
+      "id": "B05",
+      "slug": "workload-sla-admission",
+      "title": "AI Workload, SLA, Quota, Reservation and Admission Management",
+      "depends_on": "B04"
+    },
+    {
+      "id": "B06",
+      "slug": "tariff-carbon-rules",
+      "title": "Tariff, Demand-Charge, Energy Contract and Carbon Rule Engine",
+      "depends_on": "B02,B03"
+    },
+    {
+      "id": "B07",
+      "slug": "energy-assets-power-balance",
+      "title": "Energy Assets, PUE and Power-Balance Engine",
+      "depends_on": "B03,B06"
+    },
+    {
+      "id": "B08",
+      "slug": "data-ingestion-quality",
+      "title": "Connector Framework, Event/Time-Series Storage and Data Quality",
+      "depends_on": "B02,B04,B07"
+    },
+    {
+      "id": "B09",
+      "slug": "shadow-simulator",
+      "title": "Deterministic Compute–Energy Shadow Simulator",
+      "depends_on": "B05,B07,B08"
+    },
+    {
+      "id": "B10",
+      "slug": "scenario-replay-evaluator",
+      "title": "Scenario DSL, Fault Injection, Replay and Evaluation Framework",
+      "depends_on": "B09"
+    },
+    {
+      "id": "B11",
+      "slug": "forecasting-center",
+      "title": "Forecasting Center, Model Registry and Uncertainty Contracts",
+      "depends_on": "B08,B10"
+    },
+    {
+      "id": "B12",
+      "slug": "baseline-schedulers",
+      "title": "FIFO, Priority and Price-Aware Baselines with Benchmark Harness",
+      "depends_on": "B05,B06,B07,B10,B11"
+    },
+    {
+      "id": "B13",
+      "slug": "milp-co-optimizer",
+      "title": "MILP Compute–Energy Co-Optimization Engine",
+      "depends_on": "B07,B11,B12"
+    },
+    {
+      "id": "B14",
+      "slug": "rolling-mpc",
+      "title": "Rolling MPC, Online Replanning and Safe Fallback",
+      "depends_on": "B13"
+    },
+    {
+      "id": "B15",
+      "slug": "policy-plan-governance",
+      "title": "Policy, Constraint, Risk and Plan Lifecycle Governance",
+      "depends_on": "B05,B13,B14"
+    },
+    {
+      "id": "B16",
+      "slug": "approval-guarded-execution",
+      "title": "Human Approval, Action Guard, Execution Adapters and Compensation",
+      "depends_on": "B15"
+    },
+    {
+      "id": "B17",
+      "slug": "explainability-whatif-reporting",
+      "title": "Decision Explainability, Counterfactual What-if and Evidence Reporting",
+      "depends_on": "B12,B13,B15,B16"
+    },
+    {
+      "id": "B18",
+      "slug": "enterprise-platform",
+      "title": "Multi-Tenant IAM, Budgets, Chargeback, Notifications and Administration",
+      "depends_on": "B05,B08,B15,B17"
+    },
+    {
+      "id": "B19",
+      "slug": "multisite-resilience",
+      "title": "Multi-Site Optimization, Data Sovereignty, Island Mode and Resilience",
+      "depends_on": "B14,B16,B18"
+    },
+    {
+      "id": "B20",
+      "slug": "production-release-gate",
+      "title": "End-to-End Integration, Security, Performance and Production Release Gate",
+      "depends_on": "B01-B19"
+    }
+  ],
+  "notice": "Package validation proves structure only; it does not prove implementation."
+}

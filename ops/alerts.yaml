@@ -1,0 +1,58 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: computeweaver-production
+  labels: {app: computeweaver}
+spec:
+  groups:
+    - name: computeweaver.slo
+      rules:
+        - alert: ComputeWeaverApiAvailabilityBurn
+          expr: sum(rate(http_server_request_duration_seconds_count{service_name="computeweaver-api",http_response_status_code=~"5.."}[5m])) / clamp_min(sum(rate(http_server_request_duration_seconds_count{service_name="computeweaver-api"}[5m])), 1) > 0.0144
+          for: 5m
+          labels: {severity: critical, runbook: incident-response}
+          annotations: {summary: API error budget is burning faster than the critical threshold}
+        - alert: ComputeWeaverReadLatencyHigh
+          expr: histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{service_name="computeweaver-api",http_request_method="GET"}[10m]))) > 0.3
+          for: 10m
+          labels: {severity: warning, runbook: api-latency}
+          annotations: {summary: Read API P95 exceeds the certified 300 ms target}
+        - alert: ComputeWeaverTelemetryAbsent
+          expr: absent(up{job=~"computeweaver-api|computeweaver-worker"}) == 1
+          for: 10m
+          labels: {severity: critical, runbook: telemetry-absence}
+          annotations: {summary: ComputeWeaver production telemetry is absent}
+    - name: computeweaver.safety
+      rules:
+        - alert: ComputeWeaverDeadLetterJobs
+          expr: computeweaver_durable_jobs{status="dead_letter"} > 0
+          for: 5m
+          labels: {severity: critical, runbook: durable-worker-recovery}
+          annotations: {summary: Durable jobs require operator reconciliation}
+        - alert: ComputeWeaverConnectorStale
+          expr: time() - computeweaver_connector_last_success_timestamp_seconds > 600
+          for: 5m
+          labels: {severity: critical, runbook: connector-degradation}
+          annotations: {summary: A production connector has not completed a bounded read}
+        - alert: ComputeWeaverCertificateRevoked
+          expr: computeweaver_release_certificate_status{status="revoked"} == 1
+          for: 0m
+          labels: {severity: critical, runbook: release-revocation}
+          annotations: {summary: The active production certificate is revoked}
+        - alert: ComputeWeaverCertificateExpiring
+          expr: computeweaver_release_certificate_expiry_timestamp_seconds - time() < 86400
+          for: 15m
+          labels: {severity: warning, runbook: release-renewal}
+          annotations: {summary: The active production certificate expires within 24 hours}
+    - name: computeweaver.backup
+      rules:
+        - alert: ComputeWeaverBackupStale
+          expr: time() - computeweaver_backup_last_success_timestamp_seconds > 900
+          for: 5m
+          labels: {severity: critical, runbook: backup-restore}
+          annotations: {summary: PostgreSQL backup freshness exceeds the five-minute RPO}
+        - alert: ComputeWeaverRestoreRehearsalStale
+          expr: time() - computeweaver_restore_rehearsal_last_success_timestamp_seconds > 2592000
+          for: 1h
+          labels: {severity: warning, runbook: backup-restore}
+          annotations: {summary: No successful isolated restore rehearsal was observed in 30 days}

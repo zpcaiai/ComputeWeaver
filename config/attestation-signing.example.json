@@ -1,0 +1,16 @@
+{
+  "kind": "human_acceptance_vote",
+  "issuer": "REPLACE_WITH_ACCEPTANCE_AUTHORITY",
+  "subject": "REPLACE_WITH_OWNER_ID",
+  "private_key_file": "/var/run/computeweaver-signing/owner-private-key.pem",
+  "request_file": "evidence/B20/evidence-request.json",
+  "artifact_file": "evidence/B20/acceptance/owner-decision.json",
+  "valid_for_hours": 168,
+  "key_id": "REPLACE_WITH_KEY_ID",
+  "claims": {
+    "role": "REPLACE_WITH_product_owner_OR_security_owner_OR_operations_owner",
+    "actor": "REPLACE_WITH_SAME_OWNER_ID_AS_SUBJECT",
+    "decision": "ACCEPT",
+    "comment": "REPLACE_WITH_DECISION_REFERENCE"
+  }
+}

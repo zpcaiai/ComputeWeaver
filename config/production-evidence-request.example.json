@@ -1,0 +1,51 @@
+{
+  "release_id": "REPLACE_WITH_RELEASE_ID",
+  "source_revision": "REPLACE_WITH_IMMUTABLE_RELEASE_REVISION",
+  "requested_by": "REPLACE_WITH_RELEASE_REQUESTER_ID",
+  "valid_for_hours": 168,
+  "input_artifacts": [
+    "evidence/B01/sbom.spdx.json",
+    "evidence/B01/container-images.json",
+    "evidence/B01/source-binding.json",
+    "config/production-attestation-trust-policy.json",
+    "/var/run/secrets/computeweaver/connectors/trust/pentest-assessor.pem",
+    "/var/run/secrets/computeweaver/connectors/trust/product-owner.pem",
+    "/var/run/secrets/computeweaver/connectors/trust/security-owner.pem",
+    "/var/run/secrets/computeweaver/connectors/trust/operations-owner.pem"
+  ],
+  "requirements": {
+    "oidc": {"required": true, "operation": "discovery and signed token validation"},
+    "kubernetes": {"required": true, "operation": "read-only credential probe and inventory"},
+    "slurm": {"required": true, "operation": "read-only credential probe and inventory"},
+    "meter": {"required": true, "operation": "bounded recent telemetry read"},
+    "ems": {"required": true, "operation": "provider validation-only dry run", "external_write": false},
+    "production_load": {
+      "required": true,
+      "threshold_profile": "approved-mvp-slo",
+      "target": "https://control.example.com/v1/compute/nodes",
+      "minimum_requests": 1000,
+      "minimum_concurrency": 25,
+      "maximum_p95_ms": 300,
+      "maximum_p99_ms": 1000,
+      "maximum_error_rate": 0.001
+    },
+    "penetration_test": {"required": true, "critical_findings": 0, "high_findings": 0},
+    "postgres_restore": {
+      "required": true,
+      "source_database": "computeweaver",
+      "restore_database": "computeweaver_restore_RELEASE_ID",
+      "maximum_duration_seconds": 1800
+    },
+    "object_restore": {
+      "required": true,
+      "source_bucket": "computeweaver-production",
+      "restore_bucket": "computeweaver-restore-RELEASE_ID",
+      "source_prefix": "tenants/REPLACE_WITH_TENANT/artifacts",
+      "destination_prefix": "rehearsals/RELEASE_ID",
+      "maximum_duration_seconds": 1800
+    },
+    "product_owner": {"required": true, "decision": "ACCEPT", "independent_subject": true},
+    "security_owner": {"required": true, "decision": "ACCEPT", "independent_subject": true},
+    "operations_owner": {"required": true, "decision": "ACCEPT", "independent_subject": true}
+  }
+}
