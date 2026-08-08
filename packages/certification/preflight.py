@@ -132,7 +132,11 @@ def run_preflight(
             "disk_capacity",
             "PASS" if available_gib >= minimum_free_gib else "FAIL",
             None if available_gib >= minimum_free_gib else "free disk is below the configured production reserve",
-            {"available_gib": round(available_gib, 2), "minimum_free_gib": minimum_free_gib},
+            {
+                "available_gib": round(available_gib, 2),
+                "minimum_free_gib": minimum_free_gib,
+                "project_safe_remediation": "make docker-inspect; PROJECT_DOCKER_APPLY=1 make docker-clean",
+            },
         )
     )
 

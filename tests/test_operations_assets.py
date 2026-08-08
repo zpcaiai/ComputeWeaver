@@ -63,6 +63,7 @@ def test_incident_release_and_backup_runbooks_define_fail_closed_authority() -> 
 def test_finite_simulator_is_not_a_default_long_running_compose_service() -> None:
     root = Path(__file__).resolve().parents[1]
     compose = yaml.safe_load((root / "deploy/compose/docker-compose.yml").read_text(encoding="utf-8"))
+    assert compose["name"] == "computeweaver"
     assert compose["services"]["simulator"]["profiles"] == ["simulation"]
     for service in ("api", "web"):
         healthcheck = compose["services"][service]["healthcheck"]

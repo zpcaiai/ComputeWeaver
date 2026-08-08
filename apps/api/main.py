@@ -22,6 +22,7 @@ from packages.admission.service import AdmissionService
 from packages.approval.workflow import ApprovalRequest, ApprovalStatus, ApprovalWorkflow
 from packages.benchmark.runner import benchmark
 from packages.certification.lifecycle import CertificationRepository
+from packages.certification.readiness import evaluate_external_readiness
 from packages.certification.service import GateResult, certify_release
 from packages.compute.inventory import ComputeNode, Gpu
 from packages.compute.snapshot import SnapshotBuilder
@@ -2001,6 +2002,22 @@ def certification(release_id: str, context: ReadContext) -> dict[str, Any]:
         ),
     )
     return json.loads(json.dumps(asdict(result), default=str))
+
+
+@app.get("/v1/certification/{release_id}/external-readiness")
+def certification_external_readiness(release_id: str, context: ReadContext) -> dict[str, Any]:
+    del context
+    try:
+        source_revision = certification_repository.get(release_id).commit
+    except (FileNotFoundError, ValueError):
+        if settings.environment == "production":
+            raise KeyError(f"certification release not found or invalid: {release_id}") from None
+        source_revision = "UNVERSIONED"
+    return evaluate_external_readiness(
+        Path(settings.certification_evidence_root),
+        release_id=release_id,
+        source_revision=source_revision,
+    ).as_document()
 
 
 @app.post("/v1/certification/{release_id}/revoke")

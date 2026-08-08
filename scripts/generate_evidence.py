@@ -606,6 +606,7 @@ def main() -> None:
             "signed-attestations.json",
             "production-preflight.json",
             "external-gate-suite.json",
+            "external-readiness.json",
             "chaos-and-dr-report.md",
             "open-risks.json",
         ],

@@ -96,3 +96,38 @@ def test_certification_cli_never_promotes_local_restore_log_to_production_gate(
     backup = next(gate for gate in result["gates"] if gate["name"] == "backup_restore")
     assert backup["passed"] is False
     assert "restore rehearsal" in backup["reason"]
+
+
+def test_certification_external_status_writes_machine_readable_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    for batch in range(1, 21):
+        directory = tmp_path / f"B{batch:02d}"
+        directory.mkdir()
+        (directory / "manifest.json").write_text(
+            json.dumps({"batch": f"B{batch:02d}", "git_commit": "a" * 40, "mandatory_gates": {}}),
+            encoding="utf-8",
+        )
+    output = tmp_path / "B20" / "readiness.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "certify",
+            "external-status",
+            "--evidence",
+            str(tmp_path),
+            "--release-id",
+            "release-one",
+            "--commit",
+            "a" * 40,
+            "--output",
+            str(output),
+        ],
+    )
+    certification_main()
+    result = json.loads(capsys.readouterr().out)
+    assert result["status"] != "PASS"
+    assert output.is_file()

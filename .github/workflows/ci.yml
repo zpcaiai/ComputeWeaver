@@ -43,6 +43,7 @@ jobs:
       - run: make verify
       - run: make test-integration
       - run: make evidence
+      - run: .venv/bin/certify external-status --commit "${{ github.sha }}" --release-id local-candidate
       - run: docker build -f deploy/compose/Dockerfile -t computeweaver:${{ github.sha }} .
       - name: Non-root read-only image smoke
         run: |

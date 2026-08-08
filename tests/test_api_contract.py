@@ -33,6 +33,7 @@ def test_health_version_and_openapi_contract() -> None:
         "/v1/actions/{action_id}/execute",
         "/v1/multisite/optimize",
         "/v1/certification/{release_id}",
+        "/v1/certification/{release_id}/external-readiness",
         "/v1/certification/{release_id}/revoke",
     }
     assert required_paths <= schema["paths"].keys()
@@ -445,6 +446,18 @@ def test_certification_api_is_truthful() -> None:
     response = client.get("/v1/certification/local", headers=HEADERS)
     assert response.status_code == 200
     assert response.json()["status"] == "NOT_CERTIFIED"
+    readiness = client.get("/v1/certification/local/external-readiness", headers=HEADERS)
+    assert readiness.status_code == 200
+    assert readiness.json()["status"] != "PASS"
+    assert {check["name"] for check in readiness.json()["checks"]} >= {
+        "evidence_request",
+        "production_preflight",
+        "security",
+        "performance",
+        "backup_restore",
+        "external_integrations",
+        "acceptance",
+    }
 
 
 def test_cost_api_applies_capacity_export_demand_response_and_tax() -> None:

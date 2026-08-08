@@ -35,6 +35,7 @@ RESTORE_CONFIG=config/restore-rehearsal.json make restore-rehearsal
 ATTESTATION_SIGN_CONFIG=config/owner-signing.json ATTESTATION_OUTPUT=evidence/B20/attestations/owner.jwt make issue-attestation
 ATTESTATION_BUNDLE=config/production-attestations.json ATTESTATION_POLICY=config/production-attestation-trust-policy.json make verify-attestations
 EXTERNAL_GATE_SUITE_CONFIG=config/external-gate-suite.json make external-gate-suite
+certify external-status --release-id "$RELEASE_ID" --commit "$SOURCE_REVISION"
 certify run --commit "$SOURCE_REVISION" --release-id "$RELEASE_ID" --actor "$RELEASE_OPERATOR"
 certify report --release-id "$RELEASE_ID"
 certify release --commit "$SOURCE_REVISION" --release-id "$RELEASE_ID" --actor "$RELEASE_OPERATOR" --signing-key /var/run/computeweaver-signing/release-private.pem --verification-key /var/run/computeweaver-signing/release-public.pem --key-id "$RELEASE_KEY_ID"
@@ -62,6 +63,9 @@ checked before expansion, and every loaded RepoDigest is checked again. The aggr
 gate suite runs preflight, IdP/Kubernetes/Slurm/meter/EMS acceptance, production load, isolated
 database/object restore, penetration attestation and the three distinct owner signatures, then
 revalidates every output against the same evidence-request digest.
+`certify external-status` emits an integrity-protected, machine-readable view of the five external
+gates with their exact evidence references and next commands. The same view is available from
+`GET /v1/certification/{release_id}/external-readiness`; neither interface can promote a failed gate.
 
 The final evaluator re-verifies the independent JWTs, policy, bound public keys and signed
 artifact hashes instead of trusting a report flag. Published certificates are stored by release,
@@ -88,6 +92,10 @@ leased worker with a read-only root filesystem, all capabilities dropped and
 `no-new-privileges`. Production deployments must inject the secret references and replace every
 `REPLACE_*` value in `deploy/kubernetes/base.yaml`. The web console uses OIDC Authorization Code + PKCE,
 stores access tokens only in session storage, and requires `COMPUTEWEAVER_WEB_OIDC_CLIENT_ID` in production.
+The Compose project has the fixed name `computeweaver`. `make docker-inspect` lists only resources
+carrying that project label. If disk must be recovered, `PROJECT_DOCKER_APPLY=1 make docker-clean`
+removes only this project's local images, containers, networks and volumes; it never invokes a
+global Docker prune or touches another Compose project.
 
 `make verify` runs lint, static typing, generated-contract drift checks, Python tests with
 coverage, the Vue production build, skill-package validation and a deliberate CI-failure

@@ -6,7 +6,9 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
 
+from .evidence import write_evidence
 from .lifecycle import CertificationRepository
+from .readiness import evaluate_external_readiness
 from .service import (
     CertificationResult,
     certify_release,
@@ -19,7 +21,10 @@ from .signing import attach_release_signature, issue_release_token
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="certify")
-    parser.add_argument("command", choices=("preflight", "run", "report", "release", "revoke"))
+    parser.add_argument(
+        "command",
+        choices=("preflight", "run", "report", "external-status", "release", "revoke"),
+    )
     parser.add_argument("--evidence", type=Path, default=Path("evidence"))
     parser.add_argument("--commit", default="UNVERSIONED")
     parser.add_argument("--release-id", default="local-candidate")
@@ -29,6 +34,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--signing-algorithm", default="ES256")
     parser.add_argument("--key-id")
     parser.add_argument("--reason")
+    parser.add_argument("--output", type=Path)
     return parser
 
 
@@ -71,6 +77,26 @@ def main() -> None:
     repository = CertificationRepository(arguments.evidence)
     if arguments.command == "report":
         _print(repository.view(arguments.release_id))
+        return
+    if arguments.command == "external-status":
+        try:
+            source_revision = repository.get(arguments.release_id).commit
+        except (FileNotFoundError, ValueError):
+            source_revision = arguments.commit
+        report = evaluate_external_readiness(
+            arguments.evidence,
+            release_id=arguments.release_id,
+            source_revision=source_revision,
+        )
+        document = report.as_document()
+        output = arguments.output or arguments.evidence / "B20" / "external-readiness.json"
+        write_evidence(
+            output,
+            document,
+            command="certify external-status",
+            suite_name="external-production-readiness",
+        )
+        _print(document)
         return
     if arguments.command == "revoke":
         if not arguments.reason:

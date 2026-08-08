@@ -12,6 +12,8 @@ Operational release inputs:
 - `BACKUP_RESTORE.md`: backup ownership, retention, RPO/RTO and restore verification.
 - `INCIDENT_RESPONSE.md`: severity, command roles, evidence preservation and closure.
 - `RELEASE_ROLLBACK.md`: immutable release, rollback, certificate and revocation workflow.
+- `certify external-status`: machine-readable external gate blockers and exact next actions.
+- `make docker-inspect`: read-only inventory of ComputeWeaver-labelled Docker resources.
 
 The PostgreSQL backup CronJob template is in `deploy/kubernetes/postgres-backup.yaml`. It remains
 suspended until the release operator replaces the image/PVC/Secret references and verifies a

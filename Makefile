@@ -1,4 +1,4 @@
-.PHONY: bootstrap contracts contracts-check lint typecheck test test-integration verify dev migrate seed evidence clean web-build container-verify production-preflight evidence-request external-acceptance external-gate-suite production-load restore-rehearsal issue-attestation verify-attestations
+.PHONY: bootstrap contracts contracts-check lint typecheck test test-integration verify dev migrate seed evidence clean web-build container-verify docker-inspect docker-clean production-preflight evidence-request external-acceptance external-gate-suite production-load restore-rehearsal issue-attestation verify-attestations
 
 PYTHON ?= .venv/bin/python
 PIP ?= .venv/bin/pip
@@ -54,6 +54,13 @@ evidence:
 
 container-verify:
 	$(PYTHON) -m scripts.build_containers $(if $(IMAGE_BUNDLE),--image-bundle "$(IMAGE_BUNDLE)",) --output evidence/B01/container-build-result.json
+
+docker-inspect:
+	$(PYTHON) -m scripts.project_docker inspect
+
+docker-clean:
+	@test "$$PROJECT_DOCKER_APPLY" = "1" || (echo "PROJECT_DOCKER_APPLY=1 is required" && exit 2)
+	$(PYTHON) -m scripts.project_docker clean --apply
 
 production-preflight:
 	@test -n "$$PRODUCTION_PREFLIGHT_CONFIG" || (echo "PRODUCTION_PREFLIGHT_CONFIG is required" && exit 2)
