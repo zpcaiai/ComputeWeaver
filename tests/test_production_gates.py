@@ -787,6 +787,31 @@ def test_release_evaluator_rejects_summary_only_forged_attestations(tmp_path: Pa
     (tmp_path / "test-results.xml").write_text(junit, encoding="utf-8")
     (tmp_path / "postgres-integration.xml").write_text(junit, encoding="utf-8")
     (tmp_path / "coverage.xml").write_text('<coverage line-rate="0.90"/>', encoding="utf-8")
+    write_evidence(
+        tmp_path / "test-run-binding.json",
+        {
+            "status": "PASS",
+            "source_revision": revision,
+            "tree": "a" * 40,
+            "clean": True,
+            "junit_sha256": hashlib.sha256((tmp_path / "test-results.xml").read_bytes()).hexdigest(),
+            "coverage_sha256": hashlib.sha256((tmp_path / "coverage.xml").read_bytes()).hexdigest(),
+        },
+        command="record unit tests",
+        suite_name="unit-tests",
+    )
+    write_evidence(
+        tmp_path / "postgres-integration-binding.json",
+        {
+            "status": "PASS",
+            "source_revision": revision,
+            "tree": "a" * 40,
+            "clean": True,
+            "junit_sha256": hashlib.sha256((tmp_path / "postgres-integration.xml").read_bytes()).hexdigest(),
+        },
+        command="record integration tests",
+        suite_name="integration-tests",
+    )
     (tmp_path / "B02" / "schema-catalog.json").write_text(
         json.dumps({"source_revision": revision, "openapi": {"path_count": 100}}),
         encoding="utf-8",
@@ -878,6 +903,23 @@ def test_release_evaluator_rejects_summary_only_forged_attestations(tmp_path: Pa
     assert next(gate for gate in gates if gate.name == "security").passed is False
     assert next(gate for gate in gates if gate.name == "acceptance").passed is False
     assert all(gate.passed for gate in gates if gate.name not in {"security", "acceptance"})
+    binding_path = tmp_path / "test-run-binding.json"
+    binding_path.write_text(binding_path.read_text(encoding="utf-8").replace(revision, "b" * 40))
+    stale_tests = evaluate_production_evidence(tmp_path, release_id=release_id, source_revision=revision)
+    assert next(gate for gate in stale_tests if gate.name == "tests").passed is False
+    write_evidence(
+        binding_path,
+        {
+            "status": "PASS",
+            "source_revision": revision,
+            "tree": "a" * 40,
+            "clean": True,
+            "junit_sha256": hashlib.sha256((tmp_path / "test-results.xml").read_bytes()).hexdigest(),
+            "coverage_sha256": hashlib.sha256((tmp_path / "coverage.xml").read_bytes()).hexdigest(),
+        },
+        command="record unit tests",
+        suite_name="unit-tests",
+    )
     source_path = tmp_path / "B01" / "source-binding.json"
     source_path.write_text(source_path.read_text(encoding="utf-8").replace('"clean":true', '"clean":false'))
     source_tampered = evaluate_production_evidence(tmp_path, release_id=release_id, source_revision=revision)

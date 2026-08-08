@@ -24,10 +24,12 @@ typecheck:
 
 test:
 	$(PYTHON) -m pytest -m "not integration" --junitxml=evidence/test-results.xml --cov --cov-report=xml:evidence/coverage.xml
+	$(PYTHON) -m scripts.record_test_run --junit evidence/test-results.xml --coverage evidence/coverage.xml --output evidence/test-run-binding.json --suite-name unit-and-contract-tests
 
 test-integration:
 	@test -n "$$COMPUTEWEAVER_TEST_DATABASE_URL" || (echo "COMPUTEWEAVER_TEST_DATABASE_URL is required" && exit 2)
 	$(PYTHON) -m pytest -m integration -vv --junitxml=evidence/postgres-integration.xml
+	$(PYTHON) -m scripts.record_test_run --junit evidence/postgres-integration.xml --output evidence/postgres-integration-binding.json --suite-name postgres-integration-tests
 
 web-build:
 	npm --prefix apps/web run build

@@ -52,6 +52,8 @@ mismatched or unsigned production evidence remains `NOT_RUN`/`NOT_CERTIFIED`.
 
 The immutable-source check requires the release directory itself to be the Git worktree root,
 verifies both the commit and tree objects, and rejects tracked or untracked changes. Production
+JUnit and coverage artifacts receive their own clean-commit/tree binding after each test run, so
+results from an earlier revision cannot satisfy the current release gate. Production
 preflight additionally validates disk reserve, required executables, the Docker daemon, digest
 pins, non-local HTTPS endpoints, placeholder-free JSON configuration and resolvable secret
 references without printing secret values. A verified offline image bundle provides a bounded

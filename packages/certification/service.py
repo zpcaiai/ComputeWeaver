@@ -324,6 +324,27 @@ def _junit_pass(path: Path) -> bool:
         return False
 
 
+def _test_run_bound(
+    evidence_root: Path,
+    binding_name: str,
+    source_revision: str,
+    artifacts: dict[str, str],
+) -> bool:
+    binding = _verified_document(evidence_root / binding_name)
+    if not binding or binding.get("status") != "PASS" or binding.get("source_revision") != source_revision:
+        return False
+    if binding.get("clean") is not True:
+        return False
+    tree = binding.get("tree")
+    if not isinstance(tree, str) or GIT_OBJECT_ID.fullmatch(tree) is None:
+        return False
+    for field, relative in artifacts.items():
+        path = evidence_root / relative
+        if not path.is_file() or binding.get(field) != hashlib.sha256(path.read_bytes()).hexdigest():
+            return False
+    return True
+
+
 def _scenario_evidence_pass(evidence_root: Path) -> bool:
     summary = _document(evidence_root / "B10" / "batch-run-summary.json")
     episodes = _document(evidence_root / "B20" / "e2e-results" / "episode-summary.json")
@@ -367,6 +388,18 @@ def evaluate_production_evidence(
         manifest_gate_pass("tests", range(1, 20))
         and _junit_pass(evidence_root / "test-results.xml")
         and _junit_pass(evidence_root / "postgres-integration.xml")
+        and _test_run_bound(
+            evidence_root,
+            "test-run-binding.json",
+            source_revision,
+            {"junit_sha256": "test-results.xml", "coverage_sha256": "coverage.xml"},
+        )
+        and _test_run_bound(
+            evidence_root,
+            "postgres-integration-binding.json",
+            source_revision,
+            {"junit_sha256": "postgres-integration.xml"},
+        )
     )
     schema_catalog = _document(evidence_root / "B02" / "schema-catalog.json")
     contracts_pass = bool(
@@ -484,7 +517,13 @@ def evaluate_production_evidence(
         GateResult(
             "tests",
             tests_pass,
-            ("evidence/test-results.xml", "evidence/postgres-integration.xml", "evidence/coverage.xml"),
+            (
+                "evidence/test-results.xml",
+                "evidence/postgres-integration.xml",
+                "evidence/coverage.xml",
+                "evidence/test-run-binding.json",
+                "evidence/postgres-integration-binding.json",
+            ),
         ),
         GateResult("contracts", contracts_pass, ("evidence/B02/schema-catalog.json",)),
         GateResult(

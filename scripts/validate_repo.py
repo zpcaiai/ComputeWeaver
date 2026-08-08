@@ -50,6 +50,7 @@ REQUIRED = (
     "scripts/run_external_gate_suite.py",
     "scripts/manage_image_bundle.py",
     "scripts/export_image_bundle.py",
+    "scripts/record_test_run.py",
     "deploy/kubernetes/production-gates.yaml",
     "deploy/kubernetes/postgres-backup.yaml",
     "ops/alerts.yaml",
