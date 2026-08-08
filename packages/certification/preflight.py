@@ -52,6 +52,8 @@ def _contains_placeholder(value: object) -> bool:
 
 
 def _production_https_url(value: str) -> bool:
+    if _contains_placeholder(value):
+        return False
     parsed = urlsplit(value)
     if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
         return False

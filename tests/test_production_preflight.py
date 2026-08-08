@@ -75,3 +75,7 @@ def test_production_preflight_validates_real_inputs_without_returning_secrets(
     failed = run_preflight(tmp_path, configuration, resolver=CredentialResolver(tmp_path / "secrets"))
     assert failed.status == "FAIL"
     assert next(check for check in failed.checks if check.name == "production_configs").status == "FAIL"
+
+    configuration["external_urls"] = ["https://REPLACE_WITH_PRODUCTION_HOST/health"]
+    placeholder = run_preflight(tmp_path, configuration, resolver=CredentialResolver(tmp_path / "secrets"))
+    assert next(check for check in placeholder.checks if check.name == "production_endpoints").status == "FAIL"
