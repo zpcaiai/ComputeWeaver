@@ -61,10 +61,13 @@ def main() -> None:
         _print(repository.view(arguments.release_id))
         return
     if arguments.command == "external-status":
-        try:
-            source_revision = repository.get(arguments.release_id).commit
-        except (FileNotFoundError, ValueError):
+        if arguments.commit != "UNVERSIONED":
             source_revision = arguments.commit
+        else:
+            try:
+                source_revision = repository.get(arguments.release_id).commit
+            except (FileNotFoundError, ValueError):
+                source_revision = arguments.commit
         report = evaluate_external_readiness(
             arguments.evidence,
             release_id=arguments.release_id,

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -111,6 +112,15 @@ def test_certification_external_status_writes_machine_readable_evidence(
             encoding="utf-8",
         )
     output = tmp_path / "B20" / "readiness.json"
+    class StaleRepository:
+        def __init__(self, _: Path) -> None:
+            pass
+
+        @staticmethod
+        def get(_: str) -> SimpleNamespace:
+            return SimpleNamespace(commit="stale-persisted-revision")
+
+    monkeypatch.setattr("packages.certification.cli.CertificationRepository", StaleRepository)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -130,4 +140,5 @@ def test_certification_external_status_writes_machine_readable_evidence(
     certification_main()
     result = json.loads(capsys.readouterr().out)
     assert result["status"] != "PASS"
+    assert result["source_revision"] == "a" * 40
     assert output.is_file()
