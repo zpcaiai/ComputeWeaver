@@ -1,10 +1,28 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from urllib.parse import urlsplit
 
 import yaml
+
+
+def test_ci_actions_are_pinned_to_node24_capable_release_commits() -> None:
+    root = Path(__file__).resolve().parents[1]
+    workflow = (root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    expected = {
+        "checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "setup-python": "5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "setup-node": "820762786026740c76f36085b0efc47a31fe5020",
+        "upload-artifact": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+    }
+    uses = re.findall(r"uses: actions/([^@]+)@([^\s#]+)", workflow)
+    assert uses
+    assert {name for name, _reference in uses} == set(expected)
+    for name, reference in uses:
+        assert reference == expected[name]
+        assert re.fullmatch(r"[0-9a-f]{40}", reference)
 
 
 def test_operational_alerts_cover_slo_safety_certificate_and_restore() -> None:
