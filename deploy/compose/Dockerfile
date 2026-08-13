@@ -4,7 +4,7 @@ ARG PYTHON_BASE=python:3.12.11-slim@sha256:47ae396f09c1303b8653019811a8498470603
 FROM ${NODE_BASE} AS web-builder
 WORKDIR /web
 COPY apps/web/package.json apps/web/package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN npm ci --ignore-scripts --include=optional --registry=https://registry.npmjs.org
 COPY apps/web/index.html apps/web/tsconfig.json apps/web/vite.config.ts ./
 COPY apps/web/src src
 RUN npm run build

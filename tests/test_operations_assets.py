@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import yaml
 
@@ -69,6 +71,22 @@ def test_finite_simulator_is_not_a_default_long_running_compose_service() -> Non
         healthcheck = compose["services"][service]["healthcheck"]
         assert healthcheck["start_period"] == "10s"
         assert healthcheck["timeout"] == "10s"
+
+
+def test_web_supply_chain_uses_the_official_locked_registry() -> None:
+    root = Path(__file__).resolve().parents[1]
+    lock = json.loads((root / "apps/web/package-lock.json").read_text(encoding="utf-8"))
+    resolved_hosts = {
+        urlsplit(str(package["resolved"])).hostname
+        for package in lock["packages"].values()
+        if package.get("resolved")
+    }
+    assert resolved_hosts == {"registry.npmjs.org"}
+    dockerfile = (root / "deploy/compose/Dockerfile").read_text(encoding="utf-8")
+    assert (
+        "npm ci --ignore-scripts --include=optional --registry=https://registry.npmjs.org"
+        in dockerfile
+    )
 
 
 def test_api_deployment_can_execute_certification_on_read_only_root() -> None:

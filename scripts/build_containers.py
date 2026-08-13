@@ -28,6 +28,7 @@ UNAVAILABLE_MARKERS = (
     "no such host",
     "connection refused",
     "connection reset",
+    "econnreset",
     "network is unreachable",
     "request canceled",
     "client.timeout",

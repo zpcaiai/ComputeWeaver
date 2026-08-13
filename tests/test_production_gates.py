@@ -552,6 +552,7 @@ def test_external_check_records_failure_without_claiming_not_run() -> None:
 
 def test_container_failure_classification_fallback_and_smoke(monkeypatch: pytest.MonkeyPatch) -> None:
     assert build_containers.classify_failure("unexpected EOF")[0] == "NOT_RUN"
+    assert build_containers.classify_failure("npm error code ECONNRESET")[0] == "NOT_RUN"
     assert build_containers.classify_failure("RUN pip install failed")[0] == "FAIL"
     builds = iter(
         [

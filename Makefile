@@ -8,7 +8,7 @@ bootstrap:
 	python3 -m venv .venv
 	$(PIP) install -r requirements.lock
 	$(PIP) install -e . --no-deps --no-build-isolation
-	npm --prefix apps/web ci
+	npm --prefix apps/web ci --include=optional --registry=https://registry.npmjs.org
 
 contracts:
 	$(PYTHON) scripts/export_contracts.py
