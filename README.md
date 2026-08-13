@@ -102,3 +102,4 @@ coverage, the Vue production build, skill-package validation and a deliberate CI
 check. CI also starts PostgreSQL and executes the durable production-path integration test.
 `make evidence` writes batch-scoped results under `evidence/B01` through `evidence/B20`.
 See `docs/IMPLEMENTATION_STATUS.md` for the batch-to-code map and certification boundaries.
+# ComputeWeaver
