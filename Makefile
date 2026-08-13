@@ -1,4 +1,4 @@
-.PHONY: bootstrap contracts contracts-check lint typecheck test test-integration verify dev migrate seed evidence clean web-build container-verify docker-inspect docker-clean production-preflight evidence-request external-acceptance external-gate-suite production-load restore-rehearsal issue-attestation verify-attestations
+.PHONY: bootstrap contracts contracts-check lint typecheck test test-integration verify dev migrate seed evidence clean web-build web-test web-e2e container-verify docker-inspect docker-clean production-preflight evidence-request external-acceptance external-gate-suite production-load restore-rehearsal issue-attestation verify-attestations
 
 PYTHON ?= .venv/bin/python
 PIP ?= .venv/bin/pip
@@ -34,7 +34,13 @@ test-integration:
 web-build:
 	npm --prefix apps/web run build
 
-verify: lint typecheck contracts-check test web-build
+web-test:
+	npm --prefix apps/web run test:unit
+
+web-e2e: web-build
+	npm --prefix apps/web run test:e2e
+
+verify: lint typecheck contracts-check test web-build web-test web-e2e
 	$(PYTHON) skills/ai-compute-energy-control-plane-skills/validate_package.py
 	$(PYTHON) scripts/validate_repo.py
 	$(PYTHON) scripts/verify_ci_negative_gate.py

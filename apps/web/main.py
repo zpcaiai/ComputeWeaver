@@ -153,6 +153,7 @@ class WebHandler(BaseHTTPRequestHandler):
                 base_url=self.settings.api_upstream,
                 timeout=httpx.Timeout(30, connect=5),
                 follow_redirects=False,
+                trust_env=False,
             ) as client:
                 response = client.request(self.command, self.path, headers=headers, content=body)
         except httpx.HTTPError:

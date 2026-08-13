@@ -40,6 +40,7 @@ jobs:
       - run: .venv/bin/pip install -r requirements.lock
       - run: .venv/bin/pip install -e . --no-deps --no-build-isolation
       - run: npm --prefix apps/web ci
+      - run: npm --prefix apps/web exec -- playwright install --with-deps chromium
       - run: make verify
       - run: make test-integration
       - run: make evidence

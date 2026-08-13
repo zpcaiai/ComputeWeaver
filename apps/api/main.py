@@ -2057,7 +2057,10 @@ def certification_events(release_id: str, context: ReadContext) -> dict[str, Any
     return {
         "release_id": release_id,
         "integrity": "PASS" if certification_repository.verify_event_chain(release_id) else "FAIL",
-        "events": [json.loads(json.dumps(asdict(event), default=str)) for event in certification_repository.events(release_id)],
+        "events": [
+            json.loads(json.dumps(asdict(event), default=str))
+            for event in certification_repository.events(release_id)
+        ],
     }
 
 

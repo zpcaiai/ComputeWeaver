@@ -22,9 +22,9 @@ generated evidence live in the repository outside `skills/`.
 | B15 | Policy, constraints, governed plan lifecycle | `packages/policy`, `packages/constraints`, `packages/plans`, `packages/risk` | Persistent policy path implemented |
 | B16 | Approval, Action Guard, idempotency and compensation | `packages/approval`, `packages/execution` | Durable approval/action path implemented; provider execution stays gated |
 | B17 | Explanation, counterfactuals and reconciled reports | `packages/explain`, `packages/whatif`, `packages/reports` | Implemented and locally verified |
-| B18 | IAM, budgets, chargeback, notifications and admin config | `packages/iam`, PostgreSQL RLS, OIDC/JWKS, durable resource history, admin rollback, operator console | Signed-auth, OIDC PKCE UI and RLS code implemented; live IdP `NOT_RUN` |
+| B18 | IAM, budgets, chargeback, notifications and admin config | `packages/iam`, PostgreSQL RLS, OIDC/JWKS, durable resource history, admin rollback, operator console | OpenAPI-bound console exposes all 20 skill workspaces and every REST operation; signed-auth, OIDC PKCE UI and RLS code implemented; live IdP `NOT_RUN` |
 | B19 | Multi-site, sovereignty, islanding and DR | `packages/multisite`, `packages/sovereignty`, `packages/island`, `packages/resilience`, `packages/dr` | Isolated PostgreSQL and versioned-object restore rehearsal code implemented; real recovery targets still required |
-| B20 | Fail-closed release certification | `packages/certification`, `scripts/generate_evidence.py`, `deploy/kubernetes/production-gates.yaml` | Immutable evidence request, production preflight, aggregate real-gate runner, machine-readable external readiness, portable JWT/artifact re-verification, signed release-token lifecycle, hash-chained events, revocation registry, hardened Gate Jobs and project-scoped Docker recovery implemented; `NOT_CERTIFIED` until real bound evidence passes |
+| B20 | Fail-closed release certification | `packages/certification`, certification API/UI, `scripts/generate_evidence.py`, `deploy/kubernetes/production-gates.yaml` | Immutable evidence request, run, publish, event-chain and revocation lifecycle is available through the governed operator console and CLI; hardened Gate Jobs and project-scoped Docker recovery implemented; `NOT_CERTIFIED` until real bound evidence passes |
 
 The production code path now includes PostgreSQL-backed state, checksum-locked migrations,
 RLS, a leased retry/dead-letter worker, durable approvals/quota/action idempotency, OIDC/JWKS,
@@ -40,6 +40,21 @@ and the release certificate hashes every declared gate artifact. A certificate c
 published after a matching persisted run and public-key verification of its release token;
 revoked releases cannot be republished. Prometheus alert rules, backup/restore, incident and
 rollback runbooks, and a suspended hardened PostgreSQL backup CronJob template are included.
+
+The operator console catalog is generated from OpenAPI and fails contract validation if an
+operation is missing or mapped more than once. Each of the 20 skill workspaces exposes its
+read and mutation paths, request parameters, structured results, correlation identifiers,
+idempotency/concurrency controls, audit expectations and compensation guidance. High-risk
+operations require an explicit confirmation in the UI. Unit tests validate the generated
+catalog, while a real Chromium smoke validates navigation, a simulator mutation, B20 readiness,
+the certification event chain and serious/critical accessibility violations. B02 remains a
+contract-registry workspace because it intentionally declares no REST transport operation.
+
+The Kubernetes API deployment mounts the same encrypted RWX evidence claim used by the
+production gate Jobs and mounts release signing material from a read-only Secret. This makes
+the browser-to-API certification lifecycle executable on a read-only-root container without
+embedding keys in images or ConfigMaps. Operators still own PVC encryption, Secret rotation,
+immutable commit substitution and external signer/assessor authorization.
 
 This does not turn unavailable external evidence into a pass. An unversioned or dirty checkout
 keeps B01-B19 at `EVIDENCE_PENDING`, while a clean local or CI Git commit can bind those artifacts

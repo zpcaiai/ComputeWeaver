@@ -69,3 +69,40 @@ def test_finite_simulator_is_not_a_default_long_running_compose_service() -> Non
         healthcheck = compose["services"][service]["healthcheck"]
         assert healthcheck["start_period"] == "10s"
         assert healthcheck["timeout"] == "10s"
+
+
+def test_api_deployment_can_execute_certification_on_read_only_root() -> None:
+    root = Path(__file__).resolve().parents[1]
+    documents = list(
+        yaml.safe_load_all((root / "deploy/kubernetes/base.yaml").read_text(encoding="utf-8"))
+    )
+    config = next(document for document in documents if document.get("kind") == "ConfigMap")
+    deployment = next(
+        document
+        for document in documents
+        if document.get("kind") == "Deployment"
+        and document["metadata"]["name"] == "computeweaver-api"
+    )
+    pod = deployment["spec"]["template"]["spec"]
+    container = pod["containers"][0]
+    mounts = {mount["name"]: mount for mount in container["volumeMounts"]}
+    volumes = {volume["name"]: volume for volume in pod["volumes"]}
+
+    assert pod["securityContext"]["runAsUser"] == 65532
+    assert pod["securityContext"]["runAsGroup"] == 65532
+    assert pod["securityContext"]["fsGroup"] == 65532
+    assert container["securityContext"]["readOnlyRootFilesystem"] is True
+    assert mounts["release-evidence"]["mountPath"] == "/evidence"
+    assert mounts["release-signing"]["readOnly"] is True
+    assert volumes["release-evidence"]["persistentVolumeClaim"]["claimName"] == (
+        "computeweaver-release-evidence"
+    )
+    assert volumes["release-signing"]["secret"]["secretName"] == (
+        "computeweaver-release-signing"
+    )
+    assert volumes["release-signing"]["secret"]["defaultMode"] == 0o440
+    assert config["data"]["COMPUTEWEAVER_CERTIFICATION_EVIDENCE_ROOT"] == "/evidence"
+    assert config["data"]["COMPUTEWEAVER_RELEASE_COMMIT"].startswith("REPLACE_")
+    assert config["data"]["COMPUTEWEAVER_RELEASE_SIGNING_KEY_FILE"].startswith(
+        "/var/run/secrets/"
+    )

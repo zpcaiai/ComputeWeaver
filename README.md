@@ -67,6 +67,14 @@ revalidates every output against the same evidence-request digest.
 gates with their exact evidence references and next commands. The same view is available from
 `GET /v1/certification/{release_id}/external-readiness`; neither interface can promote a failed gate.
 
+The operator console exposes all 20 skill workspaces from a generated OpenAPI catalog. It includes
+every REST operation exactly once, typed path/query/body controls, idempotency and optimistic
+concurrency headers, correlation IDs, structured results, audit/compensation guidance and explicit
+confirmation for high-risk mutations. B20 adds governed evidence-request, run, publish, event-chain
+inspection and revocation controls; publication re-evaluates the immutable evidence and signs only a
+matching `CERTIFIED` run. The server-side signing key is read from a read-only secret mount and is
+never returned to the browser.
+
 The final evaluator re-verifies the independent JWTs, policy, bound public keys and signed
 artifact hashes instead of trusting a report flag. Published certificates are stored by release,
 include test/scenario/approval metadata, emit append-only lifecycle events and can be revoked with
@@ -77,6 +85,9 @@ verified revocation registry and rejects revoked certificate hashes.
 external integration, production load, restore and signature-verification gates. Release
 operators must supply the immutable image digest, encrypted evidence volume, ConfigMaps and
 Secrets, then unsuspend each Job explicitly.
+The API deployment shares the `computeweaver-release-evidence` RWX claim with those Jobs and expects
+the `computeweaver-release-signing` Secret to contain `release-private.pem` and
+`release-public.pem`. Replace the immutable commit and controlled key ID placeholders before rollout.
 
 The local simulator API is then available at `http://127.0.0.1:8000`, including `/docs`, `/health/live`,
 `/health/ready` and `/version`. The durable Compose stack also exposes the same-origin operator console at
@@ -98,8 +109,8 @@ removes only this project's local images, containers, networks and volumes; it n
 global Docker prune or touches another Compose project.
 
 `make verify` runs lint, static typing, generated-contract drift checks, Python tests with
-coverage, the Vue production build, skill-package validation and a deliberate CI-failure
-check. CI also starts PostgreSQL and executes the durable production-path integration test.
+coverage, the Vue production build, Vitest catalog tests, a real Chromium workflow/accessibility
+smoke, skill-package validation and a deliberate CI-failure check. CI also starts PostgreSQL and
+executes the durable production-path integration test.
 `make evidence` writes batch-scoped results under `evidence/B01` through `evidence/B20`.
 See `docs/IMPLEMENTATION_STATUS.md` for the batch-to-code map and certification boundaries.
-# ComputeWeaver

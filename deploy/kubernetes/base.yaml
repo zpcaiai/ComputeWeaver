@@ -14,6 +14,13 @@ data:
   COMPUTEWEAVER_OBJECT_STORE_ENDPOINT: REPLACE_IN_OVERLAY
   COMPUTEWEAVER_EXECUTION_MODE: read_only
   COMPUTEWEAVER_EXTERNAL_WRITE_ENABLED: "false"
+  COMPUTEWEAVER_RELEASE_COMMIT: REPLACE_WITH_IMMUTABLE_GIT_COMMIT
+  COMPUTEWEAVER_CERTIFICATION_EVIDENCE_ROOT: /evidence
+  COMPUTEWEAVER_RELEASE_PUBLIC_KEY_FILE: /var/run/secrets/computeweaver/release/release-public.pem
+  COMPUTEWEAVER_RELEASE_SIGNING_KEY_FILE: /var/run/secrets/computeweaver/release/release-private.pem
+  COMPUTEWEAVER_RELEASE_SIGNING_ALGORITHM: ES256
+  COMPUTEWEAVER_RELEASE_SIGNING_KEY_ID: REPLACE_WITH_CONTROLLED_KEY_ID
+  COMPUTEWEAVER_RELEASE_REVOCATIONS_FILE: /evidence/B20/revocations.json
   OTEL_SERVICE_NAME: computeweaver-api
   OTEL_EXPORTER_OTLP_ENDPOINT: REPLACE_WITH_HTTPS_OTLP_ENDPOINT
 ---
@@ -71,6 +78,9 @@ spec:
       serviceAccountName: computeweaver-migrator
       securityContext:
         runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
         seccompProfile: {type: RuntimeDefault}
       containers:
         - name: migrate
@@ -106,6 +116,9 @@ spec:
       terminationGracePeriodSeconds: 30
       securityContext:
         runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
         seccompProfile: {type: RuntimeDefault}
       topologySpreadConstraints:
         - maxSkew: 1
@@ -156,9 +169,17 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities: {drop: ["ALL"]}
+          volumeMounts:
+            - {name: release-evidence, mountPath: /evidence}
+            - {name: release-signing, mountPath: /var/run/secrets/computeweaver/release, readOnly: true}
           resources:
             requests: {cpu: 250m, memory: 256Mi}
             limits: {cpu: "2", memory: 2Gi}
+      volumes:
+        - name: release-evidence
+          persistentVolumeClaim: {claimName: computeweaver-release-evidence}
+        - name: release-signing
+          secret: {secretName: computeweaver-release-signing, defaultMode: 0440}
 ---
 apiVersion: apps/v1
 kind: Deployment

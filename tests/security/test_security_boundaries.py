@@ -63,6 +63,29 @@ def test_production_never_accepts_trusted_identity_headers_or_tls_disable() -> N
         ).validate()
 
 
+def test_server_side_release_signing_configuration_fails_closed(tmp_path: Path) -> None:
+    private_key = tmp_path / "release-private.pem"
+    private_key.write_text("test-key-material", encoding="utf-8")
+    base = Settings(
+        environment="test",
+        database_url="memory://",
+        auth_mode="oidc",
+        oidc_issuer="https://id.example.test",
+        oidc_audience="computeweaver",
+        oidc_jwks_url="https://id.example.test/jwks",
+    )
+    with pytest.raises(ValueError, match="public verification key"):
+        replace(base, release_signing_key_file=str(private_key)).validate()
+    with pytest.raises(ValueError, match="algorithm"):
+        replace(base, release_signing_algorithm="HS256").validate()
+    with pytest.raises(ValueError, match="unavailable"):
+        replace(
+            base,
+            release_signing_key_file=str(tmp_path / "missing.pem"),
+            release_public_key_file=str(tmp_path / "public.pem"),
+        ).validate()
+
+
 def test_object_keys_cannot_escape_tenant_prefix() -> None:
     assert S3ObjectStore._key("tenant-one", "reports/a.json") == "tenants/tenant-one/reports/a.json"
     with pytest.raises(ValueError):

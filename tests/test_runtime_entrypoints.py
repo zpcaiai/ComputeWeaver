@@ -135,7 +135,7 @@ def test_web_handler_serves_static_config_proxy_and_rejects_bad_routes(
 
     class ProxyClient:
         def __init__(self, **_kwargs: object) -> None:
-            pass
+            assert _kwargs["trust_env"] is False
 
         def __enter__(self) -> ProxyClient:
             return self

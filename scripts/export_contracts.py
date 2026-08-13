@@ -6,6 +6,8 @@ from pathlib import Path
 
 from apps.api.main import app
 from packages.contracts.schema_cli import MODELS
+from scripts.export_web_workflows import OUTPUT_PATH as WEB_WORKFLOW_PATH
+from scripts.export_web_workflows import build_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -14,7 +16,9 @@ def rendered_contracts() -> dict[Path, str]:
     contracts = {
         ROOT / "schemas" / "json" / f"{name}.json": model.model_json_schema() for name, model in MODELS.items()
     }
-    contracts[ROOT / "schemas" / "openapi" / "openapi.json"] = app.openapi()
+    openapi = app.openapi()
+    contracts[ROOT / "schemas" / "openapi" / "openapi.json"] = openapi
+    contracts[WEB_WORKFLOW_PATH] = build_catalog(openapi)
     return {path: json.dumps(document, indent=2, sort_keys=True) + "\n" for path, document in contracts.items()}
 
 

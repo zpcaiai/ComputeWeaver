@@ -4,7 +4,7 @@ import hashlib
 import json
 import os
 import sys
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -17,6 +17,7 @@ from fastapi.testclient import TestClient
 from apps.api import main as api_main
 from packages.certification import cli as certification_cli
 from packages.certification.lifecycle import CertificationRepository
+from packages.certification.requests import REQUIRED_EXTERNAL_GATES
 from packages.certification.service import (
     CertificationResult,
     GateResult,
@@ -30,6 +31,12 @@ from packages.certification.signing import (
 )
 
 client = TestClient(api_main.app)
+ADMIN_HEADERS = {
+    "X-Tenant-Id": "tenant-certification",
+    "X-Actor-Id": "release-operator",
+    "X-Roles": "admin,safety_admin",
+    "Idempotency-Key": "certification-api-0001",
+}
 
 
 def _certified_result() -> tuple[CertificationResult, dict[str, str]]:
@@ -148,6 +155,159 @@ def test_failed_run_emits_each_gate_failure_without_publishing(tmp_path: Path) -
             actor_id="security-admin",
             reason="invalid release must not be revocable",
         )
+
+
+def test_certification_api_runs_publishes_and_exposes_integrity_chain(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    result, _ = _certified_result()
+    key = ec.generate_private_key(ec.SECP256R1())
+    private_path = tmp_path / "release-private.pem"
+    public_path = tmp_path / "release-public.pem"
+    private_path.write_bytes(
+        key.private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.PKCS8,
+            serialization.NoEncryption(),
+        )
+    )
+    os.chmod(private_path, 0o600)
+    public_path.write_bytes(
+        key.public_key().public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+    )
+    repository = CertificationRepository(tmp_path / "evidence")
+    monkeypatch.setattr(api_main, "certification_repository", repository)
+    monkeypatch.setattr(
+        api_main,
+        "settings",
+        replace(
+            api_main.settings,
+            release_commit=result.commit,
+            certification_evidence_root=str(tmp_path / "evidence"),
+            release_signing_key_file=str(private_path),
+            release_public_key_file=str(public_path),
+            release_signing_key_id="release-key-one",
+        ),
+    )
+    monkeypatch.setattr(api_main, "evaluate_release_from_evidence", lambda *_args, **_kwargs: result)
+
+    run = client.post(
+        f"/v1/certification/{result.release_id}/run",
+        headers=ADMIN_HEADERS,
+        json={"expected_source_revision": result.commit},
+    )
+    assert run.status_code == 200
+    assert run.json()["status"] == "READY_FOR_RELEASE"
+    events = client.get(f"/v1/certification/{result.release_id}/events", headers=ADMIN_HEADERS)
+    assert events.status_code == 200
+    assert events.json()["integrity"] == "PASS"
+    assert [item["event_type"] for item in events.json()["events"]] == ["CertificationStarted"]
+
+    published = client.post(
+        f"/v1/certification/{result.release_id}/publish",
+        headers={**ADMIN_HEADERS, "Idempotency-Key": "certification-api-0002"},
+        json={
+            "expected_source_revision": result.commit,
+            "expected_certificate_hash": result.certificate_hash,
+        },
+    )
+    assert published.status_code == 200
+    assert published.json()["status"] == "CERTIFIED"
+    assert published.json()["published"] is True
+    assert published.json()["signature"]
+    assert repository.verify_event_chain(result.release_id)
+
+
+def test_certification_api_is_version_bound_role_separated_and_fail_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    result, _ = _certified_result()
+    monkeypatch.setattr(api_main, "certification_repository", CertificationRepository(tmp_path / "evidence"))
+    monkeypatch.setattr(
+        api_main,
+        "settings",
+        replace(
+            api_main.settings,
+            release_commit=result.commit,
+            certification_evidence_root=str(tmp_path / "evidence"),
+            release_signing_key_file=None,
+            release_public_key_file=None,
+        ),
+    )
+    monkeypatch.setattr(api_main, "evaluate_release_from_evidence", lambda *_args, **_kwargs: result)
+    viewer = {**ADMIN_HEADERS, "X-Roles": "viewer", "Idempotency-Key": "certification-role-0001"}
+    unauthorized = client.post(
+        f"/v1/certification/{result.release_id}/run",
+        headers=viewer,
+        json={"expected_source_revision": result.commit},
+    )
+    assert unauthorized.status_code == 403
+    mismatch = client.post(
+        f"/v1/certification/{result.release_id}/run",
+        headers={**ADMIN_HEADERS, "Idempotency-Key": "certification-version-0001"},
+        json={"expected_source_revision": "deadbeef"},
+    )
+    assert mismatch.status_code == 409
+
+    run = client.post(
+        f"/v1/certification/{result.release_id}/run",
+        headers={**ADMIN_HEADERS, "Idempotency-Key": "certification-run-0003"},
+        json={"expected_source_revision": result.commit},
+    )
+    assert run.status_code == 200
+    publish = client.post(
+        f"/v1/certification/{result.release_id}/publish",
+        headers={**ADMIN_HEADERS, "Idempotency-Key": "certification-publish-0003"},
+        json={
+            "expected_source_revision": result.commit,
+            "expected_certificate_hash": result.certificate_hash,
+        },
+    )
+    assert publish.status_code == 422
+    assert "signing" in publish.json()["message"]
+
+
+def test_certification_api_creates_one_release_bound_external_evidence_request(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    result, _ = _certified_result()
+    evidence_root = tmp_path / "evidence"
+    monkeypatch.setattr(api_main, "certification_repository", CertificationRepository(evidence_root))
+    monkeypatch.setattr(
+        api_main,
+        "settings",
+        replace(
+            api_main.settings,
+            release_commit=result.commit,
+            certification_evidence_root=str(evidence_root),
+        ),
+    )
+    request_body = {
+        "expected_source_revision": result.commit,
+        "valid_for_hours": 24,
+        "requirements": {name: {"required": True} for name in REQUIRED_EXTERNAL_GATES},
+    }
+    created = client.post(
+        f"/v1/certification/{result.release_id}/evidence-request",
+        headers={**ADMIN_HEADERS, "Idempotency-Key": "evidence-request-api-001"},
+        json=request_body,
+    )
+    assert created.status_code == 200
+    assert created.json()["source_revision"] == result.commit
+    assert created.json()["requested_by"] == "release-operator"
+    assert (evidence_root / "B20/evidence-request.json.sha256").is_file()
+    duplicate = client.post(
+        f"/v1/certification/{result.release_id}/evidence-request",
+        headers={**ADMIN_HEADERS, "Idempotency-Key": "evidence-request-api-002"},
+        json=request_body,
+    )
+    assert duplicate.status_code == 409
 
 
 def test_repository_rejects_publish_bypass_wrong_key_and_recertification(tmp_path: Path) -> None:

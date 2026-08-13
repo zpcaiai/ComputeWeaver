@@ -1,0 +1,2640 @@
+{
+  "operation_count": 120,
+  "schema_version": "1.0.0",
+  "skill_count": 20,
+  "skills": [
+    {
+      "id": "B01",
+      "mission": "Runtime health, durable jobs, audit integrity and reproducible service contracts.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "health_live_health_live_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/health/live",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Health Live"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "health_ready_health_ready_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/health/ready",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Health Ready"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "audit_integrity_v1_audit_integrity_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/audit/integrity",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Audit Integrity"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "audit_records_v1_audit_records_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/audit/records",
+          "presentation": "timeline",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Audit Records"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "enqueue-system-job-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "enqueue_system_job_v1_system_jobs_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/system/jobs",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Enqueue System Job"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "durable_job_status_v1_system_jobs__job_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "1",
+              "location": "path",
+              "name": "job_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/system/jobs/{job_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Durable Job Status"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "version_version_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/version",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Version"
+        }
+      ],
+      "title": "Platform foundation"
+    },
+    {
+      "id": "B02",
+      "mission": "Canonical API, event, unit and schema contracts shared by every workflow.",
+      "operations": [],
+      "title": "Unified contracts"
+    },
+    {
+      "id": "B03",
+      "mission": "Create, inspect, validate and publish immutable topology versions.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "get_assets_v1_assets_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/assets",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Get Assets"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "get_asset_v1_assets__asset_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "asset-001",
+              "location": "path",
+              "name": "asset_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/assets/{asset_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Get Asset"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "assets": [],
+            "relationships": []
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_topology_draft_v1_topology_drafts_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/topology/drafts",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Topology Draft"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "get_topology_graph_v1_topology_graph_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/topology/graph",
+          "presentation": "graph",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Get Topology Graph"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "topology_versions_v1_topology_versions_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/topology/versions",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Topology Versions"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "expected_draft_revision": 1.0
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "publish_topology_v1_topology__version__publish_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "1",
+              "location": "path",
+              "name": "version",
+              "required": true
+            }
+          ],
+          "path": "/v1/topology/{version}/publish",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Publish Topology"
+        }
+      ],
+      "title": "Asset topology"
+    },
+    {
+      "id": "B04",
+      "mission": "Inspect GPU capacity and synchronize governed scheduler inventory.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "compute_gpus_v1_compute_gpus_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/compute/gpus",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Compute Gpus"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "compute_nodes_v1_compute_nodes_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/compute/nodes",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Compute Nodes"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "compute_reservations_v1_compute_reservations_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/compute/reservations",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Compute Reservations"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "compute_snapshot_v1_compute_snapshots__resource_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/compute/snapshots/{resource_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Compute Snapshot"
+        },
+        {
+          "audited": true,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "sync_compute_connector_v1_connectors_compute__connector_id__sync_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "connector-001",
+              "location": "path",
+              "name": "connector_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/connectors/compute/{connector_id}/sync",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Sync Compute Connector"
+        }
+      ],
+      "title": "Compute resource plane"
+    },
+    {
+      "id": "B05",
+      "mission": "Submit workloads, evaluate admission, reserve capacity and govern quotas.",
+      "operations": [
+        {
+          "audited": true,
+          "body_example": {},
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "evaluate_admission_v1_admission_evaluate_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/admission/evaluate",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Evaluate Admission"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_job_v1_jobs_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/jobs",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Job"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {
+              "priority": 50
+            },
+            "id": "create-job-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_job_v1_jobs_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/jobs",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Job"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "job_v1_jobs__resource_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/jobs/{resource_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Job"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "cancel-job-001"
+          },
+          "compensation": "Explicit rollback, cancellation or compensation endpoint is available.",
+          "has_body": true,
+          "id": "cancel_job_v1_jobs__resource_id__cancel_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/jobs/{resource_id}/cancel",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Cancel Job"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "quota_usage_v1_quotas_current_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/quotas/current",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Quota Usage"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "configure-quota-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "configure_quota_v1_quotas_current_put",
+          "method": "PUT",
+          "parameters": [],
+          "path": "/v1/quotas/current",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Configure Quota"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_reservation_v1_reservations_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/reservations",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Reservation"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-reservation-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_reservation_v1_reservations_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/reservations",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Reservation"
+        }
+      ],
+      "title": "Workload and admission"
+    },
+    {
+      "id": "B06",
+      "mission": "Manage tariff versions and calculate explainable energy cost outcomes.",
+      "operations": [
+        {
+          "audited": true,
+          "body_example": {},
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "calculate_cost_v1_cost_calculate_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/cost/calculate",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Calculate Cost"
+        },
+        {
+          "audited": true,
+          "body_example": {},
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "compare_cost_v1_cost_compare_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/cost/compare",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Compare Cost"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_tariff_v1_tariffs_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/tariffs",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Tariff"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-tariff-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_tariff_v1_tariffs_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/tariffs",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Tariff"
+        },
+        {
+          "audited": true,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "publish_tariff_v1_tariffs__tariff_id__publish_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "tariff-001",
+              "location": "path",
+              "name": "tariff_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/tariffs/{tariff_id}/publish",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Publish Tariff"
+        }
+      ],
+      "title": "Tariff and carbon"
+    },
+    {
+      "id": "B07",
+      "mission": "Inspect energy state and validate physically bounded power dispatch.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_energy_asset_v1_energy_assets_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/energy/assets",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Energy Asset"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-energy-asset-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_energy_asset_v1_energy_assets_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/energy/assets",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Energy Asset"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "compute_load_kw": "compute-load-kw",
+            "dispatch": {},
+            "fixed_load_kw": "fixed-load-kw",
+            "grid": {},
+            "pue": "pue"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "power_balance_v1_energy_power_balance_validate_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/energy/power-balance/validate",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Power Balance"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "energy_state_v1_energy_state_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/energy/state",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Energy State"
+        }
+      ],
+      "title": "Energy assets"
+    },
+    {
+      "id": "B08",
+      "mission": "Operate connectors, time-series queries and data-quality recovery.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_connector_v1_connectors_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/connectors",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Connector"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-connector-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_connector_v1_connectors_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/connectors",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Connector"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "sync-connector-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "sync_connector_v1_connectors__connector_id__sync_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "connector-001",
+              "location": "path",
+              "name": "connector_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/connectors/{connector_id}/sync",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Sync Connector"
+        },
+        {
+          "audited": true,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "test_compute_connector_v1_connectors__connector_id__test_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "connector-001",
+              "location": "path",
+              "name": "connector_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/connectors/{connector_id}/test",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Test Compute Connector"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "quality_status_v1_data_quality_status_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/data-quality/status",
+          "presentation": "metrics",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Quality Status"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "query_timeseries_v1_timeseries_query_get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "facility_power_kw",
+              "location": "query",
+              "name": "metric",
+              "required": true
+            },
+            {
+              "default": "2026-01-01T00:00:00Z",
+              "location": "query",
+              "name": "start",
+              "required": true
+            },
+            {
+              "default": "2026-01-02T00:00:00Z",
+              "location": "query",
+              "name": "end",
+              "required": true
+            }
+          ],
+          "path": "/v1/timeseries/query",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Query Timeseries"
+        }
+      ],
+      "title": "Data ingestion"
+    },
+    {
+      "id": "B09",
+      "mission": "Create and control deterministic, production-isolated simulations.",
+      "operations": [
+        {
+          "audited": true,
+          "body_example": {
+            "data": {
+              "duration_hours": 24,
+              "gpu_count": 16,
+              "seed": 7,
+              "step_minutes": 15
+            },
+            "id": "create-simulation-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_simulation_v1_simulations_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/simulations",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Simulation"
+        },
+        {
+          "audited": true,
+          "body_example": {},
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "operate_simulation_v1_simulations__simulation_id___operation__post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "simulation-001",
+              "location": "path",
+              "name": "simulation_id",
+              "required": true
+            },
+            {
+              "default": "start",
+              "location": "path",
+              "name": "operation",
+              "required": true
+            }
+          ],
+          "path": "/v1/simulations/{simulation_id}/{operation}",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Operate Simulation"
+        }
+      ],
+      "title": "Shadow simulator"
+    },
+    {
+      "id": "B10",
+      "mission": "Validate scenarios, replay evidence and compare disturbance outcomes.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "evaluation_v1_evaluations__resource_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/evaluations/{resource_id}",
+          "presentation": "metrics",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Evaluation"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-replay-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_replay_v1_replays_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/replays",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Replay"
+        },
+        {
+          "audited": true,
+          "body_example": {},
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "scenario_run_v1_scenario_runs_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/scenario-runs",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Scenario Run"
+        },
+        {
+          "audited": true,
+          "body_example": {},
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "validate_scenario_v1_scenarios_validate_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/scenarios/validate",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Validate Scenario"
+        }
+      ],
+      "title": "Scenario evaluation"
+    },
+    {
+      "id": "B11",
+      "mission": "Generate uncertainty-aware forecasts and govern model lifecycle.",
+      "operations": [
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "generate-forecast-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "generate_forecast_v1_forecasts_generate_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/forecasts/generate",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Generate Forecast"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "forecast_v1_forecasts__resource_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/forecasts/{resource_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Forecast"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "register-model-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "register_model_v1_models_register_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/models/register",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Register Model"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "promote-model-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "promote_model_v1_models__model_name__promote_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "workload-runtime",
+              "location": "path",
+              "name": "model_name",
+              "required": true
+            }
+          ],
+          "path": "/v1/models/{model_name}/promote",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Promote Model"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "rollback-model-001"
+          },
+          "compensation": "Explicit rollback, cancellation or compensation endpoint is available.",
+          "has_body": true,
+          "id": "rollback_model_v1_models__model_name__rollback_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "workload-runtime",
+              "location": "path",
+              "name": "model_name",
+              "required": true
+            }
+          ],
+          "path": "/v1/models/{model_name}/rollback",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Rollback Model"
+        }
+      ],
+      "title": "Forecasting center"
+    },
+    {
+      "id": "B12",
+      "mission": "Run deterministic baselines and comparable benchmark episodes.",
+      "operations": [
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-benchmark-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_benchmark_v1_benchmarks_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/benchmarks",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Benchmark"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "benchmark_result_v1_benchmarks__resource_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/benchmarks/{resource_id}",
+          "presentation": "metrics",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Benchmark Result"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "baseline-schedule-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "baseline_schedule_v1_schedules_baseline__strategy__post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "fifo",
+              "location": "path",
+              "name": "strategy",
+              "required": true
+            }
+          ],
+          "path": "/v1/schedules/baseline/{strategy}",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Baseline Schedule"
+        }
+      ],
+      "title": "Baseline schedulers"
+    },
+    {
+      "id": "B13",
+      "mission": "Create content-bound co-optimization runs and inspect diagnostics.",
+      "operations": [
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-optimization-run-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_optimization_run_v1_optimization_runs_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/optimization-runs",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Optimization Run"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "optimization_result_v1_optimization_runs__resource_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/optimization-runs/{resource_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Optimization Result"
+        }
+      ],
+      "title": "MILP optimizer"
+    },
+    {
+      "id": "B14",
+      "mission": "Create controllers, execute bounded cycles and inspect fallback state.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_mpc_controller_v1_mpc_controllers_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/mpc/controllers",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Mpc Controller"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-mpc-controller-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_mpc_controller_v1_mpc_controllers_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/mpc/controllers",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Mpc Controller"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-mpc-cycle-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_mpc_cycle_v1_mpc__controller_id__cycle_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "mpc-001",
+              "location": "path",
+              "name": "controller_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/mpc/{controller_id}/cycle",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Mpc Cycle"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "mpc_cycle_v1_mpc__resource_id__cycles__cycle_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            },
+            {
+              "default": "cycle-001",
+              "location": "path",
+              "name": "cycle_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/mpc/{resource_id}/cycles/{cycle_id}",
+          "presentation": "timeline",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Mpc Cycle"
+        }
+      ],
+      "title": "Rolling MPC"
+    },
+    {
+      "id": "B15",
+      "mission": "Validate policies and govern plan comparison and approval transitions.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_governed_plans_v1_plans_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/plans",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Governed Plans"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-governed-plan-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_governed_plan_v1_plans_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/plans",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Governed Plan"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "get_governed_plan_v1_plans__plan_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "plan-001",
+              "location": "path",
+              "name": "plan_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/plans/{plan_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Get Governed Plan"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "candidate_id": "candidate-id"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "compare_governed_plans_v1_plans__plan_id__compare_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "plan-001",
+              "location": "path",
+              "name": "plan_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/plans/{plan_id}/compare",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Compare Governed Plans"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "expires_at": "2026-01-01T00:00:00Z",
+            "required_count": 0.0,
+            "required_roles": []
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "submit_plan_approval_v1_plans__plan_id__submit_approval_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "plan-001",
+              "location": "path",
+              "name": "plan_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/plans/{plan_id}/submit-approval",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Submit Plan Approval"
+        },
+        {
+          "audited": true,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "validate_governed_plan_v1_plans__plan_id__validate_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "plan-001",
+              "location": "path",
+              "name": "plan_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/plans/{plan_id}/validate",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Validate Governed Plan"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "dry-run-policy-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "dry_run_policy_v1_policies_dry_run_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/policies/dry-run",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Dry Run Policy"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "publish-policy-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "publish_policy_v1_policies_publish_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/policies/publish",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Publish Policy"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "validate-policy-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "validate_policy_v1_policies_validate_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/policies/validate",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Validate Policy"
+        }
+      ],
+      "title": "Plan governance"
+    },
+    {
+      "id": "B16",
+      "mission": "Approve, dry-run, execute, cancel and compensate bounded actions.",
+      "operations": [
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "cancel-action-001"
+          },
+          "compensation": "Explicit rollback, cancellation or compensation endpoint is available.",
+          "has_body": true,
+          "id": "cancel_action_v1_actions__action_id__cancel_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "action-001",
+              "location": "path",
+              "name": "action_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/actions/{action_id}/cancel",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Cancel Action"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "dry-run-action-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "dry_run_action_v1_actions__action_id__dry_run_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "action-001",
+              "location": "path",
+              "name": "action_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/actions/{action_id}/dry-run",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Dry Run Action"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "execute-action-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "execute_action_v1_actions__action_id__execute_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "action-001",
+              "location": "path",
+              "name": "action_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/actions/{action_id}/execute",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Execute Action"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_approvals_v1_approvals_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/approvals",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Approvals"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-approval-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_approval_v1_approvals_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/approvals",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Approval"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "approve-request-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "approve_request_v1_approvals__approval_id__approve_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "approval-001",
+              "location": "path",
+              "name": "approval_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/approvals/{approval_id}/approve",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Approve Request"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "expires_at": "2026-01-01T00:00:00Z",
+            "required_count": 0.0,
+            "required_roles": []
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "modify_approval_v1_approvals__approval_id__modify_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "approval-001",
+              "location": "path",
+              "name": "approval_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/approvals/{approval_id}/modify",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Modify Approval"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "reject-request-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "reject_request_v1_approvals__approval_id__reject_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "approval-001",
+              "location": "path",
+              "name": "approval_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/approvals/{approval_id}/reject",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Reject Request"
+        }
+      ],
+      "title": "Guarded execution"
+    },
+    {
+      "id": "B17",
+      "mission": "Inspect reasons, run isolated what-if analysis and publish reports.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "plan_explanation_v1_plans__resource_id__explanation_get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/plans/{resource_id}/explanation",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Plan Explanation"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-report-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_report_v1_reports_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/reports",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Report"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "report_v1_reports__resource_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "resource-001",
+              "location": "path",
+              "name": "resource_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/reports/{resource_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Report"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-what-if-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_what_if_v1_what_if_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/what-if",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create What If"
+        }
+      ],
+      "title": "Explainability"
+    },
+    {
+      "id": "B18",
+      "mission": "Operate tenant IAM, budgets, chargeback, notifications and administration.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_admin_config_v1_admin_config_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/admin/config",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Admin Config"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "update-admin-config-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "update_admin_config_v1_admin_config_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/admin/config",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Update Admin Config"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "get_admin_config_v1_admin_config__config_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "runtime",
+              "location": "path",
+              "name": "config_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/admin/config/{config_id}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Get Admin Config"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "target_version": 1.0
+          },
+          "compensation": "Explicit rollback, cancellation or compensation endpoint is available.",
+          "has_body": true,
+          "id": "rollback_admin_config_v1_admin_config__config_id__rollback_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "runtime",
+              "location": "path",
+              "name": "config_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/admin/config/{config_id}/rollback",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Rollback Admin Config"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "admin_config_versions_v1_admin_config__config_id__versions_get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "runtime",
+              "location": "path",
+              "name": "config_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/admin/config/{config_id}/versions",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Admin Config Versions"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_admin_connector_v1_admin_connectors_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/admin/connectors",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Admin Connector"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-admin-connector-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_admin_connector_v1_admin_connectors_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/admin/connectors",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Admin Connector"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_admin_model_v1_admin_models_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/admin/models",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Admin Model"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-admin-model-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_admin_model_v1_admin_models_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/admin/models",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Admin Model"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_admin_solver_v1_admin_solvers_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/admin/solvers",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Admin Solver"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-admin-solver-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_admin_solver_v1_admin_solvers_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/admin/solvers",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Admin Solver"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_budget_v1_budgets_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/budgets",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Budget"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-budget-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_budget_v1_budgets_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/budgets",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Budget"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "chargeback_v1_chargeback_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/chargeback",
+          "presentation": "metrics",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Chargeback"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_notification_route_v1_notifications_routes_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/notifications/routes",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Notification Route"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-notification-route-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_notification_route_v1_notifications_routes_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/notifications/routes",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Notification Route"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_role_v1_roles_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/roles",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Role"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-role-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_role_v1_roles_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/roles",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Role"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_tenant_v1_tenants_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/tenants",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Tenant"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-tenant-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_tenant_v1_tenants_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/tenants",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create Tenant"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_user_v1_users_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/users",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List User"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-user-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_user_v1_users_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/users",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Create User"
+        }
+      ],
+      "title": "Enterprise platform"
+    },
+    {
+      "id": "B19",
+      "mission": "Evaluate migrations, emergency, island and recovery plans.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "list_emergency_event_v1_emergency_events_get",
+          "method": "GET",
+          "parameters": [],
+          "path": "/v1/emergency/events",
+          "presentation": "timeline",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "List Emergency Event"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "create-emergency-event-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "create_emergency_event_v1_emergency_events_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/emergency/events",
+          "presentation": "timeline",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Create Emergency Event"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "island-plan-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "island_plan_v1_island_plan_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/island/plan",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Island Plan"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "migration-evaluation-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "migration_evaluation_v1_migrations_evaluate_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/migrations/evaluate",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "controlled",
+          "summary": "Migration Evaluation"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "multisite-optimize-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "multisite_optimize_v1_multisite_optimize_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/multisite/optimize",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Multisite Optimize"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "data": {},
+            "id": "recovery-plan-001"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "recovery_plan_v1_recovery_plan_post",
+          "method": "POST",
+          "parameters": [],
+          "path": "/v1/recovery/plan",
+          "presentation": "table",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Recovery Plan"
+        }
+      ],
+      "title": "Multi-site resilience"
+    },
+    {
+      "id": "B20",
+      "mission": "Request external evidence, run gates, publish signed releases and revoke safely.",
+      "operations": [
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "get_artifact_v1_artifacts__artifact_key__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "releases/evidence.json",
+              "location": "path",
+              "name": "artifact_key",
+              "required": true
+            }
+          ],
+          "path": "/v1/artifacts/{artifact_key}",
+          "presentation": "table",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Get Artifact"
+        },
+        {
+          "audited": true,
+          "body_example": "value",
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "put_artifact_v1_artifacts__artifact_key__put",
+          "method": "PUT",
+          "parameters": [
+            {
+              "default": "releases/evidence.json",
+              "location": "path",
+              "name": "artifact_key",
+              "required": true
+            }
+          ],
+          "path": "/v1/artifacts/{artifact_key}",
+          "presentation": "table",
+          "required_headers": [
+            "Content-Type",
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Put Artifact"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "certification_v1_certification__release_id__get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "$release_id",
+              "location": "path",
+              "name": "release_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/certification/{release_id}",
+          "presentation": "certification",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Certification"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "certification_events_v1_certification__release_id__events_get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "$release_id",
+              "location": "path",
+              "name": "release_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/certification/{release_id}/events",
+          "presentation": "certification",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Certification Events"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "expected_source_revision": "$source_revision",
+            "requirements": {
+              "ems": {
+                "required": true
+              },
+              "kubernetes": {
+                "required": true
+              },
+              "meter": {
+                "required": true
+              },
+              "object_restore": {
+                "required": true
+              },
+              "oidc": {
+                "required": true
+              },
+              "operations_owner": {
+                "required": true
+              },
+              "penetration_test": {
+                "required": true
+              },
+              "postgres_restore": {
+                "required": true
+              },
+              "product_owner": {
+                "required": true
+              },
+              "production_load": {
+                "required": true
+              },
+              "security_owner": {
+                "required": true
+              },
+              "slurm": {
+                "required": true
+              }
+            },
+            "valid_for_hours": 168
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "request_certification_evidence_v1_certification__release_id__evidence_request_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "$release_id",
+              "location": "path",
+              "name": "release_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/certification/{release_id}/evidence-request",
+          "presentation": "certification",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Request Certification Evidence"
+        },
+        {
+          "audited": false,
+          "body_example": null,
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": false,
+          "id": "certification_external_readiness_v1_certification__release_id__external_readiness_get",
+          "method": "GET",
+          "parameters": [
+            {
+              "default": "$release_id",
+              "location": "path",
+              "name": "release_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/certification/{release_id}/external-readiness",
+          "presentation": "certification",
+          "required_headers": [],
+          "requires_confirmation": false,
+          "risk": "read",
+          "summary": "Certification External Readiness"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "expected_certificate_hash": "$certificate_hash",
+            "expected_source_revision": "$source_revision"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "publish_certification_v1_certification__release_id__publish_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "$release_id",
+              "location": "path",
+              "name": "release_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/certification/{release_id}/publish",
+          "presentation": "certification",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Publish Certification"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "reason": "Operational revocation requested after verified incident review"
+          },
+          "compensation": "Explicit rollback, cancellation or compensation endpoint is available.",
+          "has_body": true,
+          "id": "revoke_certification_v1_certification__release_id__revoke_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "$release_id",
+              "location": "path",
+              "name": "release_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/certification/{release_id}/revoke",
+          "presentation": "certification",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": true,
+          "risk": "high",
+          "summary": "Revoke Certification"
+        },
+        {
+          "audited": true,
+          "body_example": {
+            "expected_source_revision": "$source_revision"
+          },
+          "compensation": "Server-side policy and state transition rules define recovery behavior.",
+          "has_body": true,
+          "id": "run_certification_v1_certification__release_id__run_post",
+          "method": "POST",
+          "parameters": [
+            {
+              "default": "$release_id",
+              "location": "path",
+              "name": "release_id",
+              "required": true
+            }
+          ],
+          "path": "/v1/certification/{release_id}/run",
+          "presentation": "certification",
+          "required_headers": [
+            "Idempotency-Key"
+          ],
+          "requires_confirmation": false,
+          "risk": "standard",
+          "summary": "Run Certification"
+        }
+      ],
+      "title": "Production certification"
+    }
+  ],
+  "source": "schemas/openapi/openapi.json",
+  "unmapped_operations": []
+}
