@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
+import re
 from dataclasses import dataclass
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -42,6 +43,7 @@ class WebSettings:
     oidc_scopes: str
     dev_identity: dict[str, str] | None
     release_id: str = "local-candidate"
+    release_commit: str | None = None
 
     @classmethod
     def from_env(cls) -> WebSettings:
@@ -67,6 +69,7 @@ class WebSettings:
                 else None
             ),
             release_id=os.getenv("COMPUTEWEAVER_RELEASE_ID", "local-candidate"),
+            release_commit=os.getenv("COMPUTEWEAVER_RELEASE_COMMIT") or None,
         )
         settings.validate()
         return settings
@@ -85,6 +88,16 @@ class WebSettings:
                 raise ValueError("production web console requires an HTTPS OIDC issuer")
             if not self.oidc_client_id:
                 raise ValueError("production web console requires an OIDC client ID")
+            if (
+                not self.release_id.strip()
+                or self.release_id == "local-candidate"
+                or self.release_id.upper().startswith("REPLACE_")
+            ):
+                raise ValueError("production web console requires a unique release ID")
+            if not self.release_commit or not re.fullmatch(
+                r"[0-9a-f]{40}|[0-9a-f]{64}", self.release_commit
+            ):
+                raise ValueError("production web console requires a full immutable Git revision")
 
     def public_config(self) -> dict[str, object]:
         return {
@@ -97,6 +110,7 @@ class WebSettings:
             },
             "dev_identity": self.dev_identity,
             "release_id": self.release_id,
+            "release_commit": self.release_commit,
         }
 
 

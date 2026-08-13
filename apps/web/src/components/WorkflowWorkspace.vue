@@ -31,10 +31,12 @@ const responseMeta = ref<ApiResponse | null>(null)
 const history = ref<RunRecord[]>([])
 const contract = ref<unknown>(null)
 const certificationContext = ref<{ sourceRevision?: string; certificateHash?: string }>({})
+const certificationBoard = ref<{ load: () => Promise<void> } | null>(null)
+const formDirty = ref(false)
 
 const context = computed<WorkflowContext>(() => ({
   releaseId: props.runtime.release_id,
-  sourceRevision: certificationContext.value.sourceRevision,
+  sourceRevision: props.runtime.release_commit || certificationContext.value.sourceRevision,
   certificateHash: certificationContext.value.certificateHash,
 }))
 const selected = computed(() => props.skill.operations.find((operation) => operation.id === selectedId.value) || null)
@@ -42,6 +44,7 @@ const reads = computed(() => props.skill.operations.filter((operation) => operat
 const writes = computed(() => props.skill.operations.length - reads.value)
 
 function resetOperation(operation: WorkflowOperation | null): void {
+  formDirty.value = false
   result.value = null
   responseMeta.value = null
   error.value = ''
@@ -91,6 +94,9 @@ async function execute(): Promise<void> {
       status: 'PASS', correlationId: response.correlationId || correlationId.value,
     })
     history.value = history.value.slice(0, 20)
+    if (props.skill.id === 'B20' && operation.method !== 'GET') {
+      await certificationBoard.value?.load()
+    }
   } catch (caught) {
     error.value = caught instanceof Error ? caught.message : String(caught)
     history.value.unshift({
@@ -109,8 +115,10 @@ async function loadContractRegistry(): Promise<void> {
 }
 
 function updateCertificationContext(value: { sourceRevision?: string; certificateHash?: string }): void {
+  const changed = value.sourceRevision !== certificationContext.value.sourceRevision
+    || value.certificateHash !== certificationContext.value.certificateHash
   certificationContext.value = value
-  resetOperation(selected.value)
+  if (changed && !formDirty.value && !busy.value) resetOperation(selected.value)
 }
 
 function initialize(): void {
@@ -136,6 +144,7 @@ watch(() => props.skill.id, initialize)
 
     <CertificationBoard
       v-if="skill.id === 'B20'"
+      ref="certificationBoard"
       :client="client"
       :release-id="runtime.release_id"
       @context="updateCertificationContext"
@@ -174,7 +183,7 @@ watch(() => props.skill.id, initialize)
           <span :class="['risk-badge', selected.risk]">{{ selected.risk }}</span>
         </div>
 
-        <form @submit.prevent="execute">
+        <form @submit.prevent="execute" @input="formDirty = true">
           <fieldset v-if="selected.parameters.length">
             <legend>Path and query parameters</legend>
             <label v-for="parameter in selected.parameters" :key="parameter.name">

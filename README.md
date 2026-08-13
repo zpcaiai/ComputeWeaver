@@ -102,7 +102,9 @@ runs checksum-locked migrations, enables object versioning, then starts the non-
 leased worker with a read-only root filesystem, all capabilities dropped and
 `no-new-privileges`. Production deployments must inject the secret references and replace every
 `REPLACE_*` value in `deploy/kubernetes/base.yaml`. The web console uses OIDC Authorization Code + PKCE,
-stores access tokens only in session storage, and requires `COMPUTEWEAVER_WEB_OIDC_CLIENT_ID` in production.
+stores access tokens only in session storage, and requires `COMPUTEWEAVER_WEB_OIDC_CLIENT_ID`, a unique
+`COMPUTEWEAVER_RELEASE_ID`, and the full immutable `COMPUTEWEAVER_RELEASE_COMMIT` in production. The
+injected commit is the source of truth for first-candidate B20 requests before a certificate exists.
 The Compose project has the fixed name `computeweaver`. `make docker-inspect` lists only resources
 carrying that project label. If disk must be recovered, `PROJECT_DOCKER_APPLY=1 make docker-clean`
 removes only this project's local images, containers, networks and volumes; it never invokes a

@@ -37,6 +37,8 @@ test('production release surface is fail-closed and has no serious accessibility
   await expect(page.getByRole('heading', { name: 'External readiness' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Lifecycle event chain' })).toBeVisible()
   await page.getByRole('combobox', { name: /Operation/ }).selectOption({ label: 'POST · Publish Certification' })
+  await expect(page.getByLabel('Validated JSON payload')).toHaveValue(/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/)
+  await expect(page.getByLabel('Validated JSON payload')).not.toHaveValue(/REPLACE_WITH_IMMUTABLE_SOURCE_REVISION/)
   await page.getByRole('button', { name: 'Submit governed operation' }).click()
   await expect(page.locator('.operation-console [role="alert"]')).toContainText('explicit confirmation')
   const results = await new AxeBuilder({ page }).analyze()

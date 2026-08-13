@@ -52,6 +52,7 @@ export default defineConfig({
         COMPUTEWEAVER_WEB_DEV_ACTOR: 'browser-operator',
         COMPUTEWEAVER_WEB_DEV_ROLES: 'admin,operator,safety_admin',
         COMPUTEWEAVER_RELEASE_ID: 'local-candidate',
+        COMPUTEWEAVER_RELEASE_COMMIT: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       },
     },
   ],

@@ -3,6 +3,7 @@ export type RuntimeConfig = {
   oidc: { issuer: string | null; client_id: string | null; audience: string | null; scopes: string }
   dev_identity: { tenant_id: string; actor_id: string; roles: string } | null
   release_id: string
+  release_commit: string | null
 }
 
 type Discovery = {

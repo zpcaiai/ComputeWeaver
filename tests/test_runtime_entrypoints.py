@@ -131,6 +131,8 @@ def test_web_handler_serves_static_config_proxy_and_rejects_bad_routes(
         oidc_audience="computeweaver",
         oidc_scopes="openid",
         dev_identity={"tenant_id": "tenant-one", "actor_id": "operator-one", "roles": "operator"},
+        release_id="release-one",
+        release_commit="a" * 40,
     )
 
     class ProxyClient:
@@ -174,6 +176,7 @@ def test_web_handler_serves_static_config_proxy_and_rejects_bad_routes(
         assert health.headers["X-Frame-Options"] == "DENY"
         config = json.loads(request("GET", "/web-config.json").read())
         assert config["dev_identity"]["tenant_id"] == "tenant-one"
+        assert config["release_commit"] == "a" * 40
         static = request("GET", "/asset.js")
         assert static.headers["Cache-Control"].startswith("public")
         assert b"export default" in static.read()

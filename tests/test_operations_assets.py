@@ -120,6 +120,7 @@ def test_api_deployment_can_execute_certification_on_read_only_root() -> None:
     )
     assert volumes["release-signing"]["secret"]["defaultMode"] == 0o440
     assert config["data"]["COMPUTEWEAVER_CERTIFICATION_EVIDENCE_ROOT"] == "/evidence"
+    assert config["data"]["COMPUTEWEAVER_RELEASE_ID"].startswith("REPLACE_")
     assert config["data"]["COMPUTEWEAVER_RELEASE_COMMIT"].startswith("REPLACE_")
     assert config["data"]["COMPUTEWEAVER_RELEASE_SIGNING_KEY_FILE"].startswith(
         "/var/run/secrets/"

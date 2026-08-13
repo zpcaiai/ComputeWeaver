@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,8 @@ def test_development_web_config_exposes_only_public_identity_configuration(
     monkeypatch.setenv("COMPUTEWEAVER_WEB_STATIC_ROOT", str(tmp_path))
     monkeypatch.setenv("COMPUTEWEAVER_WEB_API_UPSTREAM", "http://api:8000")
     monkeypatch.setenv("COMPUTEWEAVER_WEB_DEV_TENANT", "tenant-one")
+    monkeypatch.setenv("COMPUTEWEAVER_RELEASE_ID", "release-one")
+    monkeypatch.setenv("COMPUTEWEAVER_RELEASE_COMMIT", "a" * 40)
     settings = WebSettings.from_env()
 
     document = settings.public_config()
@@ -25,6 +28,8 @@ def test_development_web_config_exposes_only_public_identity_configuration(
         "actor_id": "operator-local",
         "roles": "admin,operator",
     }
+    assert document["release_id"] == "release-one"
+    assert document["release_commit"] == "a" * 40
     assert "api_upstream" not in document
 
 
@@ -57,6 +62,23 @@ def test_production_web_config_requires_https_oidc_and_public_client_id(tmp_path
             oidc_scopes=base.oidc_scopes,
             dev_identity=None,
         ).validate()
+
+    configured = replace(
+        base,
+        oidc_issuer="https://identity.example.test",
+        oidc_client_id="computeweaver-web",
+    )
+    with pytest.raises(ValueError, match="unique release ID"):
+        configured.validate()
+    with pytest.raises(ValueError, match="immutable Git revision"):
+        replace(configured, release_id="release-one").validate()
+    with pytest.raises(ValueError, match="immutable Git revision"):
+        replace(
+            configured,
+            release_id="release-one",
+            release_commit="REPLACE_WITH_IMMUTABLE_GIT_COMMIT",
+        ).validate()
+    replace(configured, release_id="release-one", release_commit="a" * 40).validate()
 
 
 @pytest.mark.parametrize(
