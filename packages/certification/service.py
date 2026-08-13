@@ -565,3 +565,35 @@ def evaluate_production_evidence(
             None if acceptance_pass else "release-bound human acceptance is missing",
         ),
     )
+
+
+def evaluate_release_from_evidence(
+    evidence_root: Path,
+    *,
+    release_id: str,
+    source_revision: str,
+    generated_at: datetime | None = None,
+) -> CertificationResult:
+    """Evaluate and bind a release candidate to the immutable evidence currently on disk."""
+
+    gates = evaluate_production_evidence(
+        evidence_root,
+        release_id=release_id,
+        source_revision=source_revision,
+    )
+    hashes = collect_gate_evidence_hashes(evidence_root, gates)
+    test_summary, scenario_metrics, approvals, risks = collect_certificate_metadata(evidence_root)
+    if not next((gate.passed for gate in gates if gate.name == "acceptance"), False):
+        approvals = ()
+    return certify_release(
+        release_id=release_id,
+        commit=source_revision,
+        generated_at=generated_at or datetime.now(UTC),
+        gate_results=gates,
+        accepted_risks=risks,
+        evidence_hashes=hashes,
+        artifacts=hashes,
+        test_summary=test_summary,
+        scenario_metrics=scenario_metrics,
+        approvals=approvals,
+    )

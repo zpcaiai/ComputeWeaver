@@ -11,10 +11,7 @@ from .lifecycle import CertificationRepository
 from .readiness import evaluate_external_readiness
 from .service import (
     CertificationResult,
-    certify_release,
-    collect_certificate_metadata,
-    collect_gate_evidence_hashes,
-    evaluate_production_evidence,
+    evaluate_release_from_evidence,
 )
 from .signing import attach_release_signature, issue_release_token
 
@@ -45,26 +42,11 @@ def _evaluate(
     commit: str,
     generated_at: datetime,
 ) -> CertificationResult:
-    gates = evaluate_production_evidence(
+    return evaluate_release_from_evidence(
         evidence_root,
         release_id=release_id,
         source_revision=commit,
-    )
-    hashes = collect_gate_evidence_hashes(evidence_root, gates)
-    test_summary, scenario_metrics, approvals, risks = collect_certificate_metadata(evidence_root)
-    if not next((gate.passed for gate in gates if gate.name == "acceptance"), False):
-        approvals = ()
-    return certify_release(
-        release_id=release_id,
-        commit=commit,
         generated_at=generated_at,
-        gate_results=gates,
-        accepted_risks=risks,
-        evidence_hashes=hashes,
-        artifacts=hashes,
-        test_summary=test_summary,
-        scenario_metrics=scenario_metrics,
-        approvals=approvals,
     )
 
 

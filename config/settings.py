@@ -47,6 +47,9 @@ class Settings:
     executor_client_certificate: str | None = None
     executor_client_key: str | None = None
     release_public_key_file: str | None = None
+    release_signing_key_file: str | None = field(default=None, repr=False)
+    release_signing_algorithm: str = "ES256"
+    release_signing_key_id: str | None = None
     release_revocations_file: str | None = None
     release_commit: str | None = None
     external_write_enabled: bool = False
@@ -91,6 +94,9 @@ class Settings:
             executor_client_certificate=os.getenv("COMPUTEWEAVER_EXECUTOR_CLIENT_CERT") or None,
             executor_client_key=os.getenv("COMPUTEWEAVER_EXECUTOR_CLIENT_KEY") or None,
             release_public_key_file=os.getenv("COMPUTEWEAVER_RELEASE_PUBLIC_KEY_FILE") or None,
+            release_signing_key_file=os.getenv("COMPUTEWEAVER_RELEASE_SIGNING_KEY_FILE") or None,
+            release_signing_algorithm=os.getenv("COMPUTEWEAVER_RELEASE_SIGNING_ALGORITHM", "ES256"),
+            release_signing_key_id=os.getenv("COMPUTEWEAVER_RELEASE_SIGNING_KEY_ID") or None,
             release_revocations_file=os.getenv("COMPUTEWEAVER_RELEASE_REVOCATIONS_FILE") or None,
             release_commit=os.getenv("COMPUTEWEAVER_RELEASE_COMMIT") or None,
             external_write_enabled=raw_write == "true",
@@ -122,6 +128,12 @@ class Settings:
             (self.oidc_issuer, self.oidc_audience, self.oidc_jwks_url)
         ):
             raise ValueError("OIDC issuer, audience, and JWKS URL are required")
+        if self.release_signing_algorithm not in {"ES256", "EdDSA"}:
+            raise ValueError("release signing algorithm must be ES256 or EdDSA")
+        if self.release_signing_key_file and not Path(self.release_signing_key_file).is_file():
+            raise ValueError("configured release signing key file is unavailable")
+        if self.release_signing_key_file and not self.release_public_key_file:
+            raise ValueError("release signing requires a configured public verification key")
         if self.environment == "production":
             if not self.database_url.startswith(("postgresql://", "postgresql+psycopg://")):
                 raise ValueError("production requires PostgreSQL")

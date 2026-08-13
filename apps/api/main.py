@@ -23,7 +23,9 @@ from packages.approval.workflow import ApprovalRequest, ApprovalStatus, Approval
 from packages.benchmark.runner import benchmark
 from packages.certification.lifecycle import CertificationRepository
 from packages.certification.readiness import evaluate_external_readiness
-from packages.certification.service import GateResult, certify_release
+from packages.certification.requests import create_evidence_request, write_request
+from packages.certification.service import GateResult, certify_release, evaluate_release_from_evidence
+from packages.certification.signing import attach_release_signature, issue_release_token
 from packages.compute.inventory import ComputeNode, Gpu
 from packages.compute.snapshot import SnapshotBuilder
 from packages.connectors.factory import create_compute_adapter, create_meter_connector
@@ -164,6 +166,21 @@ class ConfigRollbackRequest(BaseModel):
 
 class CertificationRevocationRequest(BaseModel):
     reason: str = Field(min_length=8, max_length=1000)
+
+
+class CertificationEvidenceRequest(BaseModel):
+    expected_source_revision: str = Field(min_length=7, max_length=71)
+    valid_for_hours: int = Field(default=168, ge=1, le=720)
+    requirements: dict[str, Any]
+
+
+class CertificationRunRequest(BaseModel):
+    expected_source_revision: str = Field(min_length=7, max_length=71)
+
+
+class CertificationPublishRequest(BaseModel):
+    expected_source_revision: str = Field(min_length=7, max_length=71)
+    expected_certificate_hash: str = Field(min_length=64, max_length=64)
 
 
 class PlanCompareRequest(BaseModel):
@@ -2018,6 +2035,141 @@ def certification_external_readiness(release_id: str, context: ReadContext) -> d
         release_id=release_id,
         source_revision=source_revision,
     ).as_document()
+
+
+def _certification_source_revision(expected: str) -> str:
+    configured = settings.release_commit
+    if not configured:
+        raise ValueError("COMPUTEWEAVER_RELEASE_COMMIT is required for certification mutations")
+    if configured != expected:
+        raise RuntimeError("expected source revision does not match the configured release commit")
+    return configured
+
+
+def _require_certification_admin(context: ApiContext) -> None:
+    if not context.roles.intersection({"admin", "safety_admin"}):
+        raise PermissionError("certification mutation requires admin or safety_admin role")
+
+
+@app.get("/v1/certification/{release_id}/events")
+def certification_events(release_id: str, context: ReadContext) -> dict[str, Any]:
+    del context
+    return {
+        "release_id": release_id,
+        "integrity": "PASS" if certification_repository.verify_event_chain(release_id) else "FAIL",
+        "events": [json.loads(json.dumps(asdict(event), default=str)) for event in certification_repository.events(release_id)],
+    }
+
+
+@app.post("/v1/certification/{release_id}/evidence-request")
+def request_certification_evidence(
+    release_id: str,
+    body: CertificationEvidenceRequest,
+    context: WriteContext,
+) -> dict[str, Any]:
+    _require_certification_admin(context)
+    revision = _certification_source_revision(body.expected_source_revision)
+    destination = Path(settings.certification_evidence_root) / "B20" / "evidence-request.json"
+
+    def create() -> dict[str, Any]:
+        if destination.exists():
+            raise RuntimeError("an evidence request already exists; rotate it through the governed CLI")
+        request = create_evidence_request(
+            release_id=release_id,
+            source_revision=revision,
+            requested_by=context.actor_id,
+            requirements=body.requirements,
+            valid_for=timedelta(hours=body.valid_for_hours),
+        )
+        write_request(destination, request, command="api certification evidence-request")
+        return json.loads(json.dumps(asdict(request), default=str))
+
+    return audited_operation(
+        context,
+        operation="certification.evidence_request",
+        resource=release_id,
+        intent={"release_id": release_id, "source_revision": revision},
+        callback=create,
+    )
+
+
+@app.post("/v1/certification/{release_id}/run")
+def run_certification(
+    release_id: str,
+    body: CertificationRunRequest,
+    context: WriteContext,
+) -> dict[str, Any]:
+    _require_certification_admin(context)
+    revision = _certification_source_revision(body.expected_source_revision)
+
+    def run() -> dict[str, Any]:
+        result = evaluate_release_from_evidence(
+            Path(settings.certification_evidence_root),
+            release_id=release_id,
+            source_revision=revision,
+        )
+        certification_repository.save_run(result, actor_id=context.actor_id)
+        return certification_repository.view(release_id)
+
+    return audited_operation(
+        context,
+        operation="certification.run",
+        resource=release_id,
+        intent={"release_id": release_id, "source_revision": revision},
+        callback=run,
+    )
+
+
+@app.post("/v1/certification/{release_id}/publish")
+def publish_certification(
+    release_id: str,
+    body: CertificationPublishRequest,
+    context: WriteContext,
+) -> dict[str, Any]:
+    _require_certification_admin(context)
+    revision = _certification_source_revision(body.expected_source_revision)
+
+    def publish() -> dict[str, Any]:
+        if not settings.release_signing_key_file or not settings.release_public_key_file:
+            raise ValueError("server-side release signing and verification keys are not configured")
+        run = certification_repository.load_run(release_id)
+        if run.commit != revision or run.certificate_hash != body.expected_certificate_hash:
+            raise RuntimeError("certification run changed before publication")
+        current = evaluate_release_from_evidence(
+            Path(settings.certification_evidence_root),
+            release_id=release_id,
+            source_revision=revision,
+            generated_at=run.generated_at,
+        )
+        if current.certificate_hash != run.certificate_hash:
+            raise RuntimeError("certification evidence changed after the saved run")
+        if current.status != "CERTIFIED":
+            raise ValueError("all mandatory certification gates must pass before publication")
+        token = issue_release_token(
+            current,
+            private_key_file=Path(settings.release_signing_key_file),
+            algorithm=settings.release_signing_algorithm,
+            key_id=settings.release_signing_key_id,
+        )
+        signed = attach_release_signature(current, token)
+        certification_repository.publish(
+            signed,
+            actor_id=context.actor_id,
+            public_key_file=Path(settings.release_public_key_file),
+        )
+        return certification_repository.view(release_id)
+
+    return audited_operation(
+        context,
+        operation="certification.publish",
+        resource=release_id,
+        intent={
+            "release_id": release_id,
+            "source_revision": revision,
+            "certificate_hash": body.expected_certificate_hash,
+        },
+        callback=publish,
+    )
 
 
 @app.post("/v1/certification/{release_id}/revoke")
