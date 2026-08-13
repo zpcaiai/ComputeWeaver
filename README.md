@@ -110,7 +110,7 @@ global Docker prune or touches another Compose project.
 
 `make verify` runs lint, static typing, generated-contract drift checks, Python tests with
 coverage, the Vue production build, Vitest catalog tests, a real Chromium workflow/accessibility
-smoke, skill-package validation and a deliberate CI-failure check. CI also starts PostgreSQL and
+smoke with an immutable source binding, skill-package validation and a deliberate CI-failure check. CI also starts PostgreSQL and
 executes the durable production-path integration test.
 `make evidence` writes batch-scoped results under `evidence/B01` through `evidence/B20`.
 See `docs/IMPLEMENTATION_STATUS.md` for the batch-to-code map and certification boundaries.

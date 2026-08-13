@@ -39,6 +39,7 @@ web-test:
 
 web-e2e: web-build
 	npm --prefix apps/web run test:e2e
+	$(PYTHON) -m scripts.record_test_run --junit evidence/web-e2e-results.xml --output evidence/web-e2e-binding.json --suite-name web-browser-e2e
 
 verify: lint typecheck contracts-check test web-build web-test web-e2e
 	$(PYTHON) skills/ai-compute-energy-control-plane-skills/validate_package.py
