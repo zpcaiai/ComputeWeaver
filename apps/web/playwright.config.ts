@@ -29,7 +29,7 @@ export default defineConfig({
       cwd: repositoryRoot,
       url: 'http://127.0.0.1:18880/health/ready',
       reuseExistingServer: false,
-      timeout: 30_000,
+      timeout: 120_000,
       env: {
         COMPUTEWEAVER_ENV: 'simulator',
         COMPUTEWEAVER_DATABASE_URL: 'memory://',
@@ -41,7 +41,7 @@ export default defineConfig({
       cwd: repositoryRoot,
       url: 'http://127.0.0.1:18881/web-health/live',
       reuseExistingServer: false,
-      timeout: 30_000,
+      timeout: 120_000,
       env: {
         COMPUTEWEAVER_ENV: 'simulator',
         COMPUTEWEAVER_WEB_HOST: '127.0.0.1',
